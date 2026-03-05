@@ -132,16 +132,16 @@ const FIELD_TYPES = [
 // MOCK DATA — Iberia only, no Admin user
 // ══════════════════════════════════════════════════════════════════
 const ALL_USERS_INIT = [
-  {id:1,  name:"Carlota",       lastName:"", email:"carlota@empresa.com",       role:"Empleado",              manager:"Jose",  dept:"Ventas",       market:"Iberia", active:true},
-  {id:2,  name:"Denys",         lastName:"", email:"denys@empresa.com",         role:"Empleado",              manager:"Jose",  dept:"TI",           market:"Iberia", active:true},
-  {id:3,  name:"Gabriela",      lastName:"", email:"gabriela@empresa.com",      role:"Empleado",              manager:"Sunil", dept:"Marketing",    market:"Iberia", active:true},
-  {id:4,  name:"Irene",         lastName:"", email:"irene@empresa.com",         role:"Empleado",              manager:"Sunil", dept:"Marketing",    market:"Iberia", active:true},
-  {id:5,  name:"Jose",          lastName:"", email:"jose@empresa.com",          role:"Manager",               manager:"Vinoth",dept:"Ventas",       market:"Iberia", active:true},
-  {id:6,  name:"Sunil",         lastName:"", email:"sunil@empresa.com",         role:"Manager",               manager:"Vinoth",dept:"Marketing",    market:"Iberia", active:true},
-  {id:7,  name:"Vinoth",        lastName:"", email:"vinoth@empresa.com",        role:"Manager",               manager:null,    dept:"Operaciones",  market:"Iberia", active:true},
-  {id:8,  name:"James",         lastName:"", email:"james@empresa.com",         role:"Compliance Manager",    manager:null,    dept:"Cumplimiento", market:"Iberia", active:true},
-  {id:9,  name:"Jackie",        lastName:"", email:"jackie@empresa.com",        role:"Head de Legal",         manager:null,    dept:"Legal",        market:"Iberia", active:true},
-  {id:10, name:"Administrador", lastName:"", email:"admin@empresa.com",         role:"Administrador Empresa", manager:null,    dept:"Admin",        market:"Iberia", active:true},
+  {id:1,  name:"Carlota",       lastName:"", email:"carlota@conflictguard.com",       role:"Empleado",              manager:"Jose",  dept:"Ventas",       market:"Iberia", active:true},
+  {id:2,  name:"Denys",         lastName:"", email:"denys@conflictguard.com",         role:"Empleado",              manager:"Jose",  dept:"TI",           market:"Iberia", active:true},
+  {id:3,  name:"Gabriela",      lastName:"", email:"gabriela@conflictguard.com",      role:"Empleado",              manager:"Sunil", dept:"Marketing",    market:"Iberia", active:true},
+  {id:4,  name:"Irene",         lastName:"", email:"irene@conflictguard.com",         role:"Empleado",              manager:"Sunil", dept:"Marketing",    market:"Iberia", active:true},
+  {id:5,  name:"Jose",          lastName:"", email:"jose@conflictguard.com",          role:"Manager",               manager:"Vinoth",dept:"Ventas",       market:"Iberia", active:true},
+  {id:6,  name:"Sunil",         lastName:"", email:"sunil@conflictguard.com",         role:"Manager",               manager:"Vinoth",dept:"Marketing",    market:"Iberia", active:true},
+  {id:7,  name:"Vinoth",        lastName:"", email:"vinoth@conflictguard.com",        role:"Manager",               manager:null,    dept:"Operaciones",  market:"Iberia", active:true},
+  {id:8,  name:"James",         lastName:"", email:"james@conflictguard.com",         role:"Compliance Manager",    manager:null,    dept:"Cumplimiento", market:"Iberia", active:true},
+  {id:9,  name:"Jackie",        lastName:"", email:"jackie@conflictguard.com",        role:"Head de Legal",         manager:null,    dept:"Legal",        market:"Iberia", active:true},
+  {id:10, name:"Administrador", lastName:"", email:"admin@conflictguard.com",         role:"Administrador Empresa", manager:null,    dept:"Admin",        market:"Iberia", active:true},
 ];
 
 const fullName = u => u ? (u.lastName ? `${u.name} ${u.lastName}` : u.name) : "";
@@ -306,7 +306,7 @@ function ConfirmModal({title,body,confirmLabel="Confirmar",confirmColor="#2169CC
 // ══════════════════════════════════════════════════════════════════
 // SIDEBAR & TOPBAR
 // ══════════════════════════════════════════════════════════════════
-function Sidebar({active,onNav,currentUser,isOpen,onClose,isMobile,companyName,markets}) {
+function Sidebar({active,onNav,currentUser,isOpen,onClose,isMobile,companyName,markets,onLogout}) {
   const items=NAV_ITEMS.filter(i=>i.roles.includes(currentUser.role));
   const userMarket=markets?.find(m=>m.name===currentUser.market)?.name||currentUser.market||"—";
   const isDark=T.mode==="dark";
@@ -364,6 +364,9 @@ function Sidebar({active,onNav,currentUser,isOpen,onClose,isMobile,companyName,m
           <div style={{fontSize:"0.84rem",fontWeight:500,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontFamily:"'Outfit',sans-serif"}}>{fullName(currentUser)}</div>
           <div style={{fontSize:"0.62rem",color:T.textSoft,fontFamily:"'Outfit',sans-serif",letterSpacing:"0.07em",textTransform:"uppercase",marginTop:"1px"}}>{currentUser.role}</div>
         </div>
+        <button onClick={onLogout} title="Cerrar sesión" style={{background:"none",border:`1px solid ${dividerColor}`,borderRadius:"7px",cursor:"pointer",color:T.textSoft,fontSize:"14px",padding:"5px 7px",lineHeight:1,flexShrink:0,transition:"all 0.15s"}}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(220,38,38,0.35)";e.currentTarget.style.color="#DC2626";}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor=dividerColor;e.currentTarget.style.color=T.textSoft;}}>⎋</button>
       </div>
     </div>
   </div>;
@@ -1345,9 +1348,115 @@ function RoleSwitcher({current,onChange,allUsers}) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// APP ROOT
+// LOGIN PAGE
 // ══════════════════════════════════════════════════════════════════
+const VALID_PASSWORD = "jhmr1234";
+
+function LoginPage({onLogin}) {
+  const [email,setEmail]=useState("");
+  const [password,setPassword]=useState("");
+  const [error,setError]=useState("");
+  const [showPass,setShowPass]=useState(false);
+  const [loading,setLoading]=useState(false);
+
+  // Use light theme for login always
+  const LT = LIGHT_THEME;
+
+  const handleSubmit = () => {
+    setError("");
+    if(!email||!password){setError("Por favor, introduce tu email y contraseña.");return;}
+    const user = ALL_USERS_INIT.find(u=>u.email.toLowerCase()===email.trim().toLowerCase());
+    if(!user){setError("Email no encontrado. Usa el formato nombre@conflictguard.com");return;}
+    if(password!==VALID_PASSWORD){setError("Contraseña incorrecta.");return;}
+    setLoading(true);
+    setTimeout(()=>{setLoading(false);onLogin(user);},600);
+  };
+
+  const handleKey = e => { if(e.key==="Enter") handleSubmit(); };
+
+  return <div style={{minHeight:"100vh",width:"100vw",background:`linear-gradient(160deg,${LT.bg} 0%,${LT.bgSoft} 100%)`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Outfit',sans-serif",padding:"16px"}}>
+    <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');*{box-sizing:border-box;margin:0;padding:0;}html,body,#root{height:100%;width:100%;}button{transition:opacity 0.12s,transform 0.12s;}button:hover:not(:disabled){opacity:0.88;}button:active{opacity:0.72;}`}</style>
+    <div style={{width:"100%",maxWidth:"420px",animation:"fadeInUp 0.35s ease"}}>
+      <style>{`@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}`}</style>
+
+      {/* Logo + Brand */}
+      <div style={{textAlign:"center",marginBottom:"32px"}}>
+        <div style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:"60px",height:"60px",borderRadius:"16px",background:"linear-gradient(135deg,#1853A8,#2169CC)",boxShadow:"0 8px 32px rgba(24,83,168,0.28)",marginBottom:"16px"}}>
+          <Logo size={36}/>
+        </div>
+        <div style={{fontSize:"2rem",fontWeight:700,color:"#0D1E35",fontFamily:"'Cormorant Garamond',serif",letterSpacing:"0.02em",lineHeight:1}}>
+          Conflict<span style={{color:"#1853A8"}}>Guard</span>
+        </div>
+        <div style={{fontSize:"0.62rem",color:"#4A6480",letterSpacing:"0.22em",textTransform:"uppercase",fontFamily:"'Outfit',sans-serif",fontWeight:400,marginTop:"4px"}}>by BlueGuard Solutions</div>
+      </div>
+
+      {/* Card */}
+      <div style={{background:"rgba(255,255,255,0.95)",borderRadius:"16px",boxShadow:"0 8px 40px rgba(24,83,168,0.12)",border:"1px solid rgba(24,83,168,0.10)",padding:"32px",backdropFilter:"blur(16px)"}}>
+        <div style={{marginBottom:"24px"}}>
+          <div style={{fontSize:"1.1rem",fontWeight:600,color:"#0D1E35",fontFamily:"'Cormorant Garamond',serif",marginBottom:"4px"}}>Iniciar sesión</div>
+          <div style={{fontSize:"0.78rem",color:"#4A6480",fontFamily:"'Outfit',sans-serif",fontWeight:300}}>Accede con tu cuenta corporativa</div>
+        </div>
+
+        {/* Email */}
+        <div style={{marginBottom:"14px"}}>
+          <label style={{fontSize:"0.72rem",color:"#4A6480",fontFamily:"'Outfit',sans-serif",letterSpacing:"0.08em",textTransform:"uppercase",display:"block",marginBottom:"6px",fontWeight:500}}>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={e=>{setEmail(e.target.value);setError("");}}
+            onKeyDown={handleKey}
+            placeholder="nombre@conflictguard.com"
+            style={{width:"100%",padding:"11px 14px",background:"rgba(240,244,250,0.8)",border:`1.5px solid ${error&&!email?"rgba(220,38,38,0.4)":"rgba(24,83,168,0.15)"}`,borderRadius:"9px",fontSize:"0.875rem",color:"#0D1E35",fontFamily:"'Outfit',sans-serif",outline:"none",transition:"border-color 0.15s"}}
+            onFocus={e=>e.target.style.borderColor="rgba(24,83,168,0.45)"}
+            onBlur={e=>e.target.style.borderColor="rgba(24,83,168,0.15)"}
+          />
+        </div>
+
+        {/* Password */}
+        <div style={{marginBottom:"20px"}}>
+          <label style={{fontSize:"0.72rem",color:"#4A6480",fontFamily:"'Outfit',sans-serif",letterSpacing:"0.08em",textTransform:"uppercase",display:"block",marginBottom:"6px",fontWeight:500}}>Contraseña</label>
+          <div style={{position:"relative"}}>
+            <input
+              type={showPass?"text":"password"}
+              value={password}
+              onChange={e=>{setPassword(e.target.value);setError("");}}
+              onKeyDown={handleKey}
+              placeholder="••••••••"
+              style={{width:"100%",padding:"11px 42px 11px 14px",background:"rgba(240,244,250,0.8)",border:`1.5px solid ${error&&!password?"rgba(220,38,38,0.4)":"rgba(24,83,168,0.15)"}`,borderRadius:"9px",fontSize:"0.875rem",color:"#0D1E35",fontFamily:"'Outfit',sans-serif",outline:"none",transition:"border-color 0.15s"}}
+              onFocus={e=>e.target.style.borderColor="rgba(24,83,168,0.45)"}
+              onBlur={e=>e.target.style.borderColor="rgba(24,83,168,0.15)"}
+            />
+            <button onClick={()=>setShowPass(!showPass)} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:"#4A6480",fontSize:"14px",padding:"2px",lineHeight:1}}>{showPass?"🙈":"👁"}</button>
+          </div>
+        </div>
+
+        {/* Error */}
+        {error&&<div style={{background:"rgba(220,38,38,0.07)",border:"1px solid rgba(220,38,38,0.20)",borderRadius:"8px",padding:"10px 14px",fontSize:"0.8rem",color:"#DC2626",fontFamily:"'Outfit',sans-serif",marginBottom:"16px"}}>{error}</div>}
+
+        {/* Submit */}
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          style={{width:"100%",padding:"12px",background:loading?"rgba(24,83,168,0.6)":"linear-gradient(135deg,#1853A8,#2169CC)",border:"none",borderRadius:"9px",color:"#fff",fontSize:"0.9rem",fontWeight:600,fontFamily:"'Outfit',sans-serif",cursor:loading?"wait":"pointer",letterSpacing:"0.03em",boxShadow:"0 4px 16px rgba(24,83,168,0.3)",transition:"all 0.2s"}}
+        >
+          {loading?"Verificando...":"Entrar"}
+        </button>
+
+        {/* Hint */}
+        <div style={{marginTop:"18px",padding:"12px 14px",background:"rgba(24,83,168,0.04)",borderRadius:"8px",border:"1px solid rgba(24,83,168,0.08)"}}>
+          <div style={{fontSize:"0.68rem",color:"#4A6480",fontFamily:"'DM Mono',monospace",letterSpacing:"0.06em",textTransform:"uppercase",marginBottom:"6px"}}>Cuentas disponibles</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:"5px"}}>
+            {ALL_USERS_INIT.map(u=><button key={u.id} onClick={()=>{setEmail(u.email);setError("");}} style={{background:"rgba(24,83,168,0.07)",border:"1px solid rgba(24,83,168,0.12)",borderRadius:"5px",padding:"3px 8px",fontSize:"0.7rem",color:"#1853A8",fontFamily:"'DM Mono',monospace",cursor:"pointer"}}>{u.email.split("@")[0]}</button>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+
 export default function App() {
+  const [loggedIn,setLoggedIn]=useState(false);
   const [page,setPage]=useState("new");
   const [currentUser,setCurrentUser]=useState(ALL_USERS_INIT[0]);
   const [declarations,setDeclarations]=useState(INIT_DECLARATIONS);
@@ -1357,7 +1466,7 @@ export default function App() {
   const [markets,setMarkets]=useState(INIT_MARKETS);
   const [sidebarOpen,setSidebarOpen]=useState(false);
   const [isMobile,setIsMobile]=useState(typeof window!=="undefined"&&window.innerWidth<768);
-  const [darkMode,setDarkMode]=useState(true);
+  const [darkMode,setDarkMode]=useState(false);
   const [companyName,setCompanyName]=useState("BlueGuard Solutions");
 
   // Keep global T in sync — components read T at render time
@@ -1373,6 +1482,22 @@ export default function App() {
     const allowed=ROLE_NAV[currentUser.role]||[];
     if(!allowed.includes(page)&&page!=="detail") setPage(allowed[0]||"declarations");
   },[currentUser]);
+
+  const handleLogin = (user) => {
+    setCurrentUser(user);
+    const allowed=ROLE_NAV[user.role]||[];
+    setPage(allowed[0]||"declarations");
+    setLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setLoggedIn(false);
+    setCurrentUser(ALL_USERS_INIT[0]);
+    setPage("new");
+    setSelected(null);
+  };
+
+  if(!loggedIn) return <LoginPage onLogin={handleLogin}/>;
 
   const isAdmin=currentUser.role==="Administrador Empresa";
   const nav=p=>{setSelected(null);setPage(p);setSidebarOpen(false);};
@@ -1428,11 +1553,11 @@ export default function App() {
     `}</style>
     {isMobile&&<TopBar onMenuOpen={()=>setSidebarOpen(true)} currentUser={currentUser} companyName={companyName}/>}
     <div style={{display:"flex",flex:1,overflow:"hidden",minHeight:0}}>
-      <Sidebar active={activePage} onNav={nav} currentUser={currentUser} isOpen={sidebarOpen} onClose={()=>setSidebarOpen(false)} isMobile={isMobile} companyName={companyName} markets={markets}/>
+      <Sidebar active={activePage} onNav={nav} currentUser={currentUser} isOpen={sidebarOpen} onClose={()=>setSidebarOpen(false)} isMobile={isMobile} companyName={companyName} markets={markets} onLogout={handleLogout}/>
       <main style={{flex:1,padding:isMobile?"14px 14px 80px":"24px 32px 40px",overflowY:"auto",background:T.bg,minWidth:0,backgroundImage:T.mainRadial,transition:"background 0.3s"}}>
         {renderContent()}
       </main>
     </div>
-    <RoleSwitcher current={currentUser} onChange={u=>{setCurrentUser(u);}} allUsers={users}/>
+    {isAdmin&&<RoleSwitcher current={currentUser} onChange={u=>{setCurrentUser(u);}} allUsers={users}/>}
   </div>;
 }
