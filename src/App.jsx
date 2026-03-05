@@ -132,16 +132,16 @@ const FIELD_TYPES = [
 // MOCK DATA — Iberia only, no Admin user
 // ══════════════════════════════════════════════════════════════════
 const ALL_USERS_INIT = [
-  {id:1,  name:"Carlota",       lastName:"", email:"carlota@conflictguard.com",       role:"Empleado",              manager:"Jose",  dept:"Ventas",       market:"Iberia", active:true},
-  {id:2,  name:"Denys",         lastName:"", email:"denys@conflictguard.com",         role:"Empleado",              manager:"Jose",  dept:"TI",           market:"Iberia", active:true},
-  {id:3,  name:"Gabriela",      lastName:"", email:"gabriela@conflictguard.com",      role:"Empleado",              manager:"Sunil", dept:"Marketing",    market:"Iberia", active:true},
-  {id:4,  name:"Irene",         lastName:"", email:"irene@conflictguard.com",         role:"Empleado",              manager:"Sunil", dept:"Marketing",    market:"Iberia", active:true},
-  {id:5,  name:"Jose",          lastName:"", email:"jose@conflictguard.com",          role:"Manager",               manager:"Vinoth",dept:"Ventas",       market:"Iberia", active:true},
-  {id:6,  name:"Sunil",         lastName:"", email:"sunil@conflictguard.com",         role:"Manager",               manager:"Vinoth",dept:"Marketing",    market:"Iberia", active:true},
-  {id:7,  name:"Vinoth",        lastName:"", email:"vinoth@conflictguard.com",        role:"Manager",               manager:null,    dept:"Operaciones",  market:"Iberia", active:true},
-  {id:8,  name:"James",         lastName:"", email:"james@conflictguard.com",         role:"Compliance Manager",    manager:null,    dept:"Cumplimiento", market:"Iberia", active:true},
-  {id:9,  name:"Jackie",        lastName:"", email:"jackie@conflictguard.com",        role:"Head de Legal",         manager:null,    dept:"Legal",        market:"Iberia", active:true},
-  {id:10, name:"Administrador", lastName:"", email:"admin@conflictguard.com",         role:"Administrador Empresa", manager:null,    dept:"Admin",        market:"Iberia", active:true},
+  {id:1,  name:"Carlota",       lastName:"", email:"carlota@disclosureguard.com",       role:"Empleado",              manager:"Jose",  dept:"Ventas",       market:"Iberia", active:true},
+  {id:2,  name:"Denys",         lastName:"", email:"denys@disclosureguard.com",         role:"Empleado",              manager:"Jose",  dept:"TI",           market:"Iberia", active:true},
+  {id:3,  name:"Gabriela",      lastName:"", email:"gabriela@disclosureguard.com",      role:"Empleado",              manager:"Sunil", dept:"Marketing",    market:"Iberia", active:true},
+  {id:4,  name:"Irene",         lastName:"", email:"irene@disclosureguard.com",         role:"Empleado",              manager:"Sunil", dept:"Marketing",    market:"Iberia", active:true},
+  {id:5,  name:"Jose",          lastName:"", email:"jose@disclosureguard.com",          role:"Manager",               manager:"Vinoth",dept:"Ventas",       market:"Iberia", active:true},
+  {id:6,  name:"Sunil",         lastName:"", email:"sunil@disclosureguard.com",         role:"Manager",               manager:"Vinoth",dept:"Marketing",    market:"Iberia", active:true},
+  {id:7,  name:"Vinoth",        lastName:"", email:"vinoth@disclosureguard.com",        role:"Manager",               manager:null,    dept:"Operaciones",  market:"Iberia", active:true},
+  {id:8,  name:"James",         lastName:"", email:"james@disclosureguard.com",         role:"Compliance Manager",    manager:null,    dept:"Cumplimiento", market:"Iberia", active:true},
+  {id:9,  name:"Jackie",        lastName:"", email:"jackie@disclosureguard.com",        role:"Head de Legal",         manager:null,    dept:"Legal",        market:"Iberia", active:true},
+  {id:10, name:"Administrador", lastName:"", email:"admin@disclosureguard.com",         role:"Administrador Empresa", manager:null,    dept:"Admin",        market:"Iberia", active:true},
 ];
 
 const fullName = u => u ? (u.lastName ? `${u.name} ${u.lastName}` : u.name) : "";
@@ -153,6 +153,7 @@ const getInitialReviewStatus = (wf) => {
   return "Completado";
 };
 
+// Base workflow defaults
 const INIT_WORKFLOW = {
   requireManagerReview:           true,
   requireComplianceReview:        true,
@@ -160,27 +161,49 @@ const INIT_WORKFLOW = {
   allowEscalationByComplianceOnly:false,
   escalationUserId:               9,
   autoClose:                      false,
+  thresholdsEnabled:              false,
+  thresholdAutoApprove:           50,
+  thresholdSkipToCompliance:      150,
 };
 
-const INIT_FIELDS = [
-  {id:"f1",label:"Tipo de conflicto",    type:"select",    required:true,  active:true,  options:["Relación familiar con proveedor","Participación en empresa competidora","Inversión financiera en cliente","Segunda actividad laboral","Regalo o beneficio recibido","Otro"]},
-  {id:"f2",label:"Descripción detallada",type:"textarea",  required:true,  active:true,  options:[]},
-  {id:"f3",label:"Entidad involucrada",  type:"short_text",required:false, active:true,  options:[]},
-  {id:"f4",label:"Valor económico (€)",  type:"number",    required:false, active:false, options:[]},
-  {id:"f5",label:"Fecha del hecho",      type:"date",      required:false, active:true,  options:[]},
-  {id:"f6",label:"Adjuntos",             type:"file",      required:false, active:true,  options:[]},
+// Per-workflow-type initial field sets
+const FIELDS_CONFLICTO = [
+  {id:"fc1",label:"Tipo de relación",     type:"select",    required:true, active:true, options:["Relación familiar con proveedor","Participación en empresa competidora","Inversión financiera en cliente","Segunda actividad laboral","Otro"]},
+  {id:"fc2",label:"Descripción detallada",type:"textarea",  required:true, active:true, options:[]},
+  {id:"fc3",label:"Entidad involucrada",  type:"short_text",required:false,active:true, options:[]},
+  {id:"fc4",label:"Fecha del hecho",      type:"date",      required:false,active:true, options:[]},
+  {id:"fc5",label:"Adjuntos",             type:"file",      required:false,active:true, options:[]},
+];
+const FIELDS_REGALO = [
+  {id:"fr1",label:"Descripción del regalo",  type:"textarea",  required:true, active:true, options:[]},
+  {id:"fr2",label:"Proveedor / remitente",   type:"short_text",required:true, active:true, options:[]},
+  {id:"fr3",label:"Valor estimado (€)",      type:"number",    required:true, active:true, options:[]},
+  {id:"fr4",label:"Fecha de recepción",      type:"date",      required:false,active:true, options:[]},
+  {id:"fr5",label:"Adjuntos",                type:"file",      required:false,active:true, options:[]},
 ];
 
-const INIT_FORM_META = {
-  subtitle:"Declara cualquier situación que pueda constituir un conflicto de interés. Tu declaración es confidencial y es un acto de transparencia.",
-};
+// Workflow type templates used when creating new markets
+const INIT_WORKFLOW_TYPES = [
+  {id:"conflicto-intereses", name:"Conflicto de interés", categoryValue:"Conflicto de interés",
+   workflow:{...INIT_WORKFLOW, thresholdsEnabled:false},
+   fields:FIELDS_CONFLICTO.map(f=>({...f})),
+   formMeta:{subtitle:"Declara cualquier situación que pueda constituir un conflicto de interés. Tu declaración es confidencial y es un acto de transparencia."}},
+  {id:"regalos", name:"Regalos y beneficios", categoryValue:"Regalos y beneficios",
+   workflow:{...INIT_WORKFLOW, thresholdsEnabled:true, thresholdAutoApprove:50, thresholdSkipToCompliance:150},
+   fields:FIELDS_REGALO.map(f=>({...f})),
+   formMeta:{subtitle:"Declara cualquier regalo, invitación o beneficio recibido de terceros. La transparencia protege tanto al empleado como a la empresa."}},
+];
 
 const INIT_MARKETS = [
   {id:"iberia", name:"Iberia", countries:"España, Portugal", active:true,
-   workflow:{...INIT_WORKFLOW},
-   fields:[...INIT_FIELDS],
-   formMeta:{...INIT_FORM_META}},
+   workflowTypes: INIT_WORKFLOW_TYPES.map(wt=>({...wt, workflow:{...wt.workflow}, fields:wt.fields.map(f=>({...f})), formMeta:{...wt.formMeta}}))},
 ];
+
+// Helper: get workflow type by category value
+const getWorkflowTypeByCategory = (mktCfg, categoryValue) => {
+  const types = mktCfg?.workflowTypes || [];
+  return types.find(wt => wt.categoryValue === categoryValue) || types[0] || null;
+};
 
 const INIT_DECLARATIONS = [
   {id:"DEC-001",userId:1,userName:"Carlota",  type:"Relación familiar con proveedor",     formValues:{f1:"Relación familiar con proveedor",f2:"Mi hermano trabaja como director en Proveedor ABC S.L., con quien tenemos contrato activo.",f3:"Proveedor ABC S.L."},status:"En revisión manager",   createdAt:"2026-02-10T09:30:00",updatedAt:"2026-02-11T14:00:00",market:"Iberia",attachments:["contrato_abc.pdf"],comments:[{author:"Jose",      text:"Revisando documentación adjunta.",                                        date:"2026-02-11T14:00:00",type:"review"}]},
@@ -605,40 +628,48 @@ function DeclarationsList({declarations,currentUser,allUsers,onView,isMobile,vie
 }
 
 // ══════════════════════════════════════════════════════════════════
-// NEW DECLARATION FORM — with send confirmation modal
+// NEW DECLARATION FORM — category-driven, dynamic fields
 // ══════════════════════════════════════════════════════════════════
 function NewDeclarationForm({currentUser,markets,onSubmit,isMobile}) {
   const mktCfg = getMarketConfig(markets, currentUser.market);
-  const formFields = mktCfg.fields;
-  const formMeta = mktCfg.formMeta;
-  const workflow = mktCfg.workflow;
-  const active=formFields.filter(f=>f.active);
+  const allWorkflowTypes = mktCfg?.workflowTypes || [];
   const [vals,setVals]=useState({});
   const [done,setDone]=useState(false);
   const [showConfirm,setShowConfirm]=useState(false);
   const [lastMode,setLastMode]=useState("draft");
 
+  // Derive selected category → active workflow type
+  const selectedCategory = vals["__cat"]||"";
+  const activeWt = allWorkflowTypes.find(wt=>wt.categoryValue===selectedCategory)||null;
+  const workflow = activeWt?.workflow||{};
+  const dynamicFields = (activeWt?.fields||[]).filter(f=>f.active);
+  const formMeta = activeWt?.formMeta||{subtitle:"Selecciona una categoría para mostrar el formulario."};
+
   const validate=()=>{
-    for(const f of active.filter(f=>f.required)){
+    if(!selectedCategory){alert("Selecciona una categoría de solicitud.");return false;}
+    for(const f of dynamicFields.filter(f=>f.required)){
       if(!vals[f.id]||String(vals[f.id]).trim()===""){alert(`"${f.label}" es obligatorio.`);return false;}
     }return true;
   };
-  const buildDecl=(status)=>{
-    const tf=active.find(f=>f.type==="select");
-    return {id:`DEC-${String(Math.floor(Math.random()*9000)+1000)}`,userId:currentUser.id,userName:fullName(currentUser),type:tf?vals[tf.id]||"Declaración":"Declaración",formValues:{...vals},status,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),market:currentUser.market||"Iberia",attachments:[],
-      comments:status!=="Draft"?[{author:fullName(currentUser),text:"Declaración enviada por el empleado.",date:new Date().toISOString(),type:"submitted"}]:[]};
-  };
+  const buildDecl=(status)=>({
+    id:`DEC-${String(Math.floor(Math.random()*9000)+1000)}`,
+    userId:currentUser.id,userName:fullName(currentUser),
+    type:selectedCategory||"Declaración",
+    formValues:{...vals},status,
+    createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),
+    market:currentUser.market||"Iberia",attachments:[],
+    comments:status!=="Draft"?[{author:fullName(currentUser),text:"Declaración enviada por el empleado.",date:new Date().toISOString(),type:"submitted"}]:[],
+  });
 
-  const handleDraft=()=>{if(!validate())return;onSubmit(buildDecl("Draft"),"draft");setLastMode("draft");setDone(true);};
+  const handleDraft=()=>{if(!selectedCategory){alert("Selecciona una categoría.");return;}onSubmit(buildDecl("Draft"),"draft");setLastMode("draft");setDone(true);};
   const handleSendClick=()=>{if(!validate())return;setShowConfirm(true);};
   const confirmSend=()=>{
-    const initStatus=getInitialReviewStatus(workflow);
-    onSubmit(buildDecl(initStatus),"send");
+    const mktCfgNow=getMarketConfig(markets,currentUser.market);
+    const wtNow=(mktCfgNow?.workflowTypes||[]).find(wt=>wt.categoryValue===selectedCategory);
+    const wfNow=wtNow?.workflow||workflow;
+    onSubmit(buildDecl(getInitialReviewStatus(wfNow)),"send");
     setLastMode("send");setShowConfirm(false);setDone(true);
   };
-
-  const tf=active.find(f=>f.type==="select");
-  const df=active.find(f=>f.type==="textarea");
 
   if(done) return <div style={{textAlign:"center",padding:"60px 20px"}}>
     <div style={{width:"56px",height:"56px",borderRadius:"50%",background:"rgba(52,211,153,0.08)",border:"2px solid rgba(74,222,128,0.25)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"24px",margin:"0 auto 16px",color:"#34D399"}}>✓</div>
@@ -648,12 +679,21 @@ function NewDeclarationForm({currentUser,markets,onSubmit,isMobile}) {
   </div>;
 
   const inp={width:"100%",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"8px",padding:"9px 12px",color:T.text,fontSize:"0.88rem",fontFamily:"'Outfit',sans-serif",outline:"none",boxSizing:"border-box"};
+  const renderField=(f)=>{
+    if(f.type==="select")     return <select value={vals[f.id]||""} onChange={e=>setVals({...vals,[f.id]:e.target.value})} style={{...inp,cursor:"pointer"}}><option value="">Selecciona…</option>{f.options.map(o=><option key={o} value={o}>{o}</option>)}</select>;
+    if(f.type==="multiselect")return <select multiple value={vals[f.id]||[]} onChange={e=>setVals({...vals,[f.id]:[...e.target.selectedOptions].map(o=>o.value)})} style={{...inp,height:"86px"}}>{f.options.map(o=><option key={o} value={o}>{o}</option>)}</select>;
+    if(f.type==="textarea")   return <textarea value={vals[f.id]||""} onChange={e=>setVals({...vals,[f.id]:e.target.value})} rows={5} style={{...inp,resize:"vertical",lineHeight:1.7}}/>;
+    if(f.type==="number")     return <input type="number" value={vals[f.id]||""} onChange={e=>setVals({...vals,[f.id]:e.target.value})} style={inp}/>;
+    if(f.type==="date")       return <input type="date" value={vals[f.id]||""} onChange={e=>setVals({...vals,[f.id]:e.target.value})} style={inp}/>;
+    if(f.type==="file")       return <div style={{border:`2px dashed ${T.border}`,borderRadius:"8px",padding:"18px",textAlign:"center",color:T.textXSoft,fontSize:"12px",cursor:"pointer",background:"rgba(24,83,168,0.02)"}} onClick={()=>alert("Carga de archivos disponible en producción.")}>📎 Arrastra o haz clic para adjuntar</div>;
+    return <input type="text" value={vals[f.id]||""} onChange={e=>setVals({...vals,[f.id]:e.target.value})} style={inp}/>;
+  };
+
   return <div style={{maxWidth:"600px"}}>
     {showConfirm&&<ConfirmModal title="Confirmar envío" confirmLabel="Sí, enviar" confirmColor="linear-gradient(135deg,#2169CC,#1853A8)" onConfirm={confirmSend} onCancel={()=>setShowConfirm(false)}>
       <div style={{background:T.accentLight,border:`1px solid ${T.border}`,borderRadius:"9px",padding:"14px",marginBottom:"8px"}}>
         <div style={{fontSize:"11px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"8px"}}>Resumen</div>
-        {tf&&<div style={{marginBottom:"7px"}}><div style={{fontSize:"10px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"2px"}}>TIPO</div><div style={{fontSize:"13px",color:T.text,fontWeight:600}}>{vals[tf.id]||"—"}</div></div>}
-        {df&&<div><div style={{fontSize:"10px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"2px"}}>DESCRIPCIÓN</div><div style={{fontSize:"12px",color:T.textMid,lineHeight:1.6,maxHeight:"80px",overflow:"hidden"}}>{vals[df.id]||"—"}</div></div>}
+        <div style={{marginBottom:"7px"}}><div style={{fontSize:"10px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"2px"}}>CATEGORÍA</div><div style={{fontSize:"13px",color:T.text,fontWeight:600}}>{selectedCategory||"—"}</div></div>
         <div style={{marginTop:"10px",fontSize:"11px",color:"#C9A84C",background:"rgba(201,168,76,0.08)",border:"1px solid rgba(201,168,76,0.28)",borderRadius:"6px",padding:"7px 10px",fontFamily:"'Outfit',sans-serif"}}>⚠ Una vez enviada, solo podrás modificarla si te la devuelven.</div>
       </div>
       <p style={{fontSize:"12px",color:T.textSoft}}>¿Confirmas que la información es correcta?</p>
@@ -664,26 +704,30 @@ function NewDeclarationForm({currentUser,markets,onSubmit,isMobile}) {
     </div>
     <div style={{background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,borderRadius:"9px",padding:"10px 14px",marginBottom:"20px",fontSize:"12px",color:"#5AB4F0"}}><b>ℹ Recuerda:</b> Declarar un conflicto es un acto de transparencia y no implica sanción.</div>
     <div style={{display:"grid",gap:"13px"}}>
-      {active.map(f=>(
+      {/* Shared category field — always first */}
+      <div>
+        <label style={{display:"block",fontSize:"0.62rem",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"5px",letterSpacing:"0.12em",textTransform:"uppercase",fontWeight:400}}>Categoría de la solicitud <span style={{color:"#F87171"}}>*</span></label>
+        <select value={vals["__cat"]||""} onChange={e=>setVals({__cat:e.target.value})} style={{...inp,cursor:"pointer"}}>
+          <option value="">Selecciona una categoría…</option>
+          {allWorkflowTypes.map(wt=><option key={wt.id} value={wt.categoryValue}>{wt.categoryValue}</option>)}
+        </select>
+      </div>
+      {/* Dynamic fields for selected category */}
+      {selectedCategory && dynamicFields.map(f=>(
         <div key={f.id}>
           <label style={{display:"block",fontSize:"0.62rem",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"5px",letterSpacing:"0.12em",textTransform:"uppercase",fontWeight:400}}>{f.label}{f.required&&<span style={{color:"#F87171",marginLeft:"3px"}}>*</span>}</label>
-          {f.type==="select"&&<select value={vals[f.id]||""} onChange={e=>setVals({...vals,[f.id]:e.target.value})} style={{...inp,cursor:"pointer"}}><option value="">Selecciona…</option>{f.options.map(o=><option key={o} value={o}>{o}</option>)}</select>}
-          {f.type==="multiselect"&&<select multiple value={vals[f.id]||[]} onChange={e=>setVals({...vals,[f.id]:[...e.target.selectedOptions].map(o=>o.value)})} style={{...inp,height:"86px"}}>{f.options.map(o=><option key={o} value={o}>{o}</option>)}</select>}
-          {f.type==="textarea"&&<textarea value={vals[f.id]||""} onChange={e=>setVals({...vals,[f.id]:e.target.value})} rows={5} style={{...inp,resize:"vertical",lineHeight:1.7}}/>}
-          {f.type==="short_text"&&<input type="text" value={vals[f.id]||""} onChange={e=>setVals({...vals,[f.id]:e.target.value})} style={inp}/>}
-          {f.type==="number"&&<input type="number" value={vals[f.id]||""} onChange={e=>setVals({...vals,[f.id]:e.target.value})} style={inp}/>}
-          {f.type==="date"&&<input type="date" value={vals[f.id]||""} onChange={e=>setVals({...vals,[f.id]:e.target.value})} style={inp}/>}
-          {f.type==="file"&&<div style={{border:`2px dashed ${T.border}`,borderRadius:"8px",padding:"18px",textAlign:"center",color:T.textXSoft,fontSize:"12px",cursor:"pointer",background:T.mode==="dark"?"rgba(90,180,240,0.04)":"rgba(24,83,168,0.03)"}} onClick={()=>alert("Carga de archivos disponible en producción.")}>📎 Arrastra o haz clic para adjuntar</div>}
+          {renderField(f)}
         </div>
       ))}
+      {selectedCategory && dynamicFields.length===0 && <div style={{padding:"14px",background:T.accentLight,border:`1px solid ${T.border}`,borderRadius:"8px",fontSize:"12px",color:T.textSoft}}>Este workflow no tiene campos adicionales configurados.</div>}
       <div>
         <label style={{display:"block",fontSize:"0.62rem",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"5px",letterSpacing:"0.12em",textTransform:"uppercase",fontWeight:400}}>Declarante</label>
-        <input value={fullName(currentUser)} disabled style={{...inp,opacity:0.5,cursor:"not-allowed",background:T.mode==="dark"?"rgba(90,180,240,0.04)":"rgba(24,83,168,0.03)"}}/>
+        <input value={fullName(currentUser)} disabled style={{...inp,opacity:0.5,cursor:"not-allowed"}}/>
       </div>
       <div style={{display:"flex",gap:"8px",justifyContent:"flex-end",flexWrap:"wrap",paddingTop:"4px"}}>
         <button onClick={()=>setVals({})} style={{padding:"8px 14px",background:T.accentLight,border:`1px solid ${T.border}`,color:T.textSoft,borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"12px"}}>Limpiar</button>
-        <button onClick={handleDraft} style={{padding:"9px 16px",background:T.bgCard,border:`1px solid ${T.border}`,color:T.text,borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"13px",fontWeight:400,letterSpacing:"0.01em"}}>Guardar borrador</button>
-        <button onClick={handleSendClick} style={{padding:"9px 24px",background:"linear-gradient(135deg,#1853A8,#2169CC)",border:"none",color:"#EEF4FB",borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"13px",fontWeight:500,boxShadow:"0 6px 28px rgba(21,83,168,0.4)",letterSpacing:"0.01em",display:"inline-flex",alignItems:"center",gap:"7px"}}>Enviar declaración <span>→</span></button>
+        <button onClick={handleDraft} style={{padding:"9px 16px",background:T.bgCard,border:`1px solid ${T.border}`,color:T.text,borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"13px",fontWeight:400}}>Guardar borrador</button>
+        <button onClick={handleSendClick} style={{padding:"9px 24px",background:"linear-gradient(135deg,#1853A8,#2169CC)",border:"none",color:"#EEF4FB",borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"13px",fontWeight:500,boxShadow:"0 6px 28px rgba(21,83,168,0.4)",display:"inline-flex",alignItems:"center",gap:"7px"}}>Enviar declaración <span>→</span></button>
       </div>
     </div>
   </div>;
@@ -703,8 +747,9 @@ function DeclarationDetail({declaration,currentUser,markets,allUsers,onBack,onUp
   const [completeFormData,setCompleteFormData]=useState({q1:"",q2:"",q3:"",agreed:""});
 
   const mktCfg = getMarketConfig(markets, d.market);
-  const formFields = mktCfg.fields.filter(f=>f.active);
-  const workflow = mktCfg.workflow;
+  const activeWt = getWorkflowTypeByCategory(mktCfg, d.type) || (mktCfg?.workflowTypes||[])[0];
+  const formFields = (activeWt?.fields||[]).filter(f=>f.active);
+  const workflow = activeWt?.workflow || {};
 
   const isAdmin    = currentUser.role==="Administrador Empresa";
   const isEmployee = d.userId===currentUser.id;
@@ -961,21 +1006,18 @@ function AuditLog({auditLogs,isMobile}) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// ADMIN PANEL — markets each have own workflow + form
+// ADMIN PANEL
 // ══════════════════════════════════════════════════════════════════
 function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDarkMode,companyName,setCompanyName}) {
   const [tab,setTab]=useState("general");
   const [selectedMktId,setSelectedMktId]=useState(markets[0]?.id||"iberia");
-  // User form
   const [showAddUser,setShowAddUser]=useState(false);
   const [editUser,setEditUser]=useState(null);
   const [userForm,setUserForm]=useState({name:"",lastName:"",email:"",role:"Empleado",dept:"",manager:"",market:markets[0]?.name||"Iberia"});
   const [confirmDelete,setConfirmDelete]=useState(null);
-  // Market form
   const [showAddMkt,setShowAddMkt]=useState(false);
   const [editMkt,setEditMkt]=useState(null);
   const [mktForm,setMktForm]=useState({name:"",countries:""});
-  // Form field editing
   const [editFieldId,setEditFieldId]=useState(null);
   const [newOpt,setNewOpt]=useState("");
   const [editingLabelId,setEditingLabelId]=useState(null);
@@ -985,6 +1027,39 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
   const updSelMkt=(patch)=>setMarkets(markets.map(m=>m.id===selectedMktId?{...m,...patch}:m));
   const legalUsers=users.filter(u=>u.role==="Head de Legal"&&u.active);
   const inp={background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"6px",padding:"7px 10px",color:T.text,fontSize:"0.84rem",fontFamily:"'Outfit',sans-serif",outline:"none"};
+
+  // Workflow type state
+  const workflowTypes=selMkt?.workflowTypes||[];
+  const [selectedWtId,setSelectedWtId]=useState(workflowTypes[0]?.id||"");
+  const selWt=workflowTypes.find(wt=>wt.id===selectedWtId)||workflowTypes[0]||null;
+  const updSelWt=(patch)=>updSelMkt({workflowTypes:workflowTypes.map(wt=>wt.id===(selWt?.id)?{...wt,...patch}:wt)});
+  const wf=selWt?.workflow||{};
+  const setWf=patch=>updSelWt({workflow:{...wf,...patch}});
+  const fields=selWt?.fields||[];
+  const setFields=f=>updSelWt({fields:f});
+  const formMeta=selWt?.formMeta||{subtitle:""};
+  const setFormMeta=fm=>updSelWt({formMeta:fm});
+
+  // Workflow CRUD
+  const [showAddWt,setShowAddWt]=useState(false);
+  const [wtForm,setWtForm]=useState({name:"",categoryValue:""});
+  const addWorkflowType=()=>{
+    if(!wtForm.name.trim()){alert("Nombre obligatorio.");return;}
+    const id=wtForm.name.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"");
+    if(workflowTypes.find(wt=>wt.id===id)){alert("Ya existe un workflow con ese nombre.");return;}
+    const newWt={id,name:wtForm.name,categoryValue:wtForm.categoryValue||wtForm.name,
+      workflow:{...INIT_WORKFLOW,thresholdsEnabled:false},fields:[],formMeta:{subtitle:""}};
+    const updated=[...workflowTypes,newWt];
+    updSelMkt({workflowTypes:updated});
+    setSelectedWtId(id);
+    setShowAddWt(false);setWtForm({name:"",categoryValue:""});
+  };
+  const deleteWorkflowType=(id)=>{
+    if(workflowTypes.length<=1){alert("Debe existir al menos un workflow.");return;}
+    const updated=workflowTypes.filter(wt=>wt.id!==id);
+    updSelMkt({workflowTypes:updated});
+    setSelectedWtId(updated[0]?.id||"");
+  };
 
   // User CRUD
   const openAddUser=()=>{setUserForm({name:"",lastName:"",email:"",role:"Empleado",dept:"",manager:"",market:markets[0]?.name||"Iberia"});setEditUser(null);setShowAddUser(true);};
@@ -1004,226 +1079,185 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
   const saveMkt=()=>{
     if(!mktForm.name.trim()){alert("Nombre obligatorio.");return;}
     if(editMkt) setMarkets(markets.map(m=>m.id===editMkt.id?{...m,...mktForm}:m));
-    else setMarkets([...markets,{id:mktForm.name.toLowerCase().replace(/\s+/g,"-"),name:mktForm.name,countries:mktForm.countries,active:true,workflow:{...INIT_WORKFLOW},fields:[...INIT_FIELDS],formMeta:{...INIT_FORM_META}}]);
+    else setMarkets([...markets,{id:mktForm.name.toLowerCase().replace(/\s+/g,"-"),name:mktForm.name,countries:mktForm.countries,active:true,
+      workflowTypes:INIT_WORKFLOW_TYPES.map(wt=>({...wt,workflow:{...wt.workflow},fields:wt.fields.map(f=>({...f})),formMeta:{...wt.formMeta}}))}]);
     setShowAddMkt(false);setEditMkt(null);
   };
   const deleteMkt=id=>setMarkets(markets.filter(m=>m.id!==id));
 
-  // Workflow helpers
-  const wf=selMkt?.workflow||{};
-  const setWf=patch=>updSelMkt({workflow:{...wf,...patch}});
-  const wfOpts=[
-    {key:"requireManagerReview",          label:"Revisión por Manager",              desc:"El Manager debe revisar antes de Compliance.",           icon:"◐",c:"#C9A84C"},
-    {key:"requireComplianceReview",       label:"Revisión por Compliance",           desc:"El Compliance Manager debe completar la declaración.",   icon:"◑",c:"#1853A8"},
-    {key:"allowEscalation",               label:"Permitir escalado a Legal",         desc:"Permite escalar la declaración al Head de Legal.",       icon:"⚠",c:"#F87171"},
-    {key:"allowEscalationByComplianceOnly",label:"Escalado solo por Compliance",     desc:"Solo el Compliance Manager puede escalar al Head de Legal.",icon:"🔒",c:"#92400E"},
-    {key:"autoClose",                     label:"Completado automático",             desc:"Se completa al terminar el último paso.",                icon:"✓",c:"#34D399"},
-  ];
-
-  // Form field helpers
-  const fields=selMkt?.fields||[];
-  const setFields=f=>updSelMkt({fields:f});
-  const formMeta=selMkt?.formMeta||{subtitle:""};
-  const setFormMeta=fm=>updSelMkt({formMeta:fm});
+  // Field helpers
   const moveField=(idx,dir)=>{const a=[...fields],to=idx+dir;if(to<0||to>=a.length)return;[a[idx],a[to]]=[a[to],a[idx]];setFields(a);};
   const addOpt=fid=>{if(!newOpt.trim())return;setFields(fields.map(f=>f.id===fid?{...f,options:[...f.options,newOpt.trim()]}:f));setNewOpt("");};
   const removeOpt=(fid,o)=>setFields(fields.map(f=>f.id===fid?{...f,options:f.options.filter(x=>x!==o)}:f));
+
+  const wfOpts=[
+    {key:"requireManagerReview",            label:"Revisión por Manager",           desc:"El Manager debe revisar antes de Compliance.",          icon:"◐",c:"#C9A84C"},
+    {key:"requireComplianceReview",         label:"Revisión por Compliance",        desc:"El Compliance Manager debe completar la declaración.",  icon:"◑",c:"#1853A8"},
+    {key:"allowEscalationByComplianceOnly", label:"Escalado solo por Compliance",   desc:"Solo el Compliance Manager puede escalar a Legal.",     icon:"🔒",c:"#92400E"},
+    {key:"autoClose",                       label:"Completado automático",          desc:"Se completa al terminar el último paso.",               icon:"✓",c:"#34D399"},
+  ];
 
   const TABS=[{id:"general",label:"⚙ General"},{id:"users",label:"👤 Usuarios"},{id:"markets",label:"🌍 Mercados"},{id:"workflow",label:"⚙ Workflow"},{id:"form",label:"◻ Formulario"}];
 
   return <div>
     {confirmDelete&&<ConfirmModal title="¿Eliminar usuario?" body={`${fullName(confirmDelete)} será eliminado permanentemente.`} confirmLabel="Eliminar" confirmColor="#F87171" onConfirm={()=>deleteUser(confirmDelete.id)} onCancel={()=>setConfirmDelete(null)}/>}
-    {confirmDeleteField&&<ConfirmModal title="¿Eliminar campo?" body={`El campo "${confirmDeleteField.label}" será eliminado del formulario. Esta acción no se puede deshacer.`} confirmLabel="Eliminar campo" confirmColor="#F87171" onConfirm={()=>{setFields(fields.filter(f=>f.id!==confirmDeleteField.id));setConfirmDeleteField(null);}} onCancel={()=>setConfirmDeleteField(null)}/>}
-
+    {confirmDeleteField&&<ConfirmModal title="¿Eliminar campo?" body={`El campo "${confirmDeleteField.label}" será eliminado. Esta acción no se puede deshacer.`} confirmLabel="Eliminar campo" confirmColor="#F87171" onConfirm={()=>{setFields(fields.filter(f=>f.id!==confirmDeleteField.id));setConfirmDeleteField(null);}} onCancel={()=>setConfirmDeleteField(null)}/>}
     <div style={{marginBottom:"18px"}}>
       <h1 style={{fontSize:isMobile?"1.5rem":"2rem",fontWeight:600,color:T.text,fontFamily:"'Cormorant Garamond',serif",margin:0,letterSpacing:"-0.01em"}}>Administración</h1>
       <p style={{color:T.textSoft,fontSize:"13px",margin:"5px 0 0",fontWeight:300}}>Gestión de usuarios, mercados, workflow y formulario</p>
     </div>
-    <div style={{display:"flex",gap:"3px",marginBottom:"16px",background:T.mode==="dark"?"rgba(90,180,240,0.04)":"rgba(24,83,168,0.03)",padding:"3px",borderRadius:"9px",border:`1px solid ${T.border}`,width:"fit-content",flexWrap:"wrap"}}>
-      {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"7px 14px",borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"12px",fontWeight:600,border:"none",background:tab===t.id?(T.mode==="dark"?"rgba(15,37,64,0.8)":"rgba(255,255,255,0.95)"):"transparent",color:tab===t.id?T.accent:T.textSoft,boxShadow:tab===t.id?"0 1px 3px rgba(0,0,0,0.08)":"none",transition:"all 0.14s",whiteSpace:"nowrap"}}>{t.label}</button>)}
+
+    {/* Tabs */}
+    <div style={{display:"flex",gap:"4px",marginBottom:"20px",flexWrap:"wrap"}}>
+      {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"6px 14px",borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"12px",fontWeight:tab===t.id?600:400,border:`1px solid ${tab===t.id?T.borderMid:T.border}`,background:tab===t.id?T.accentLight:T.bgSoft,color:tab===t.id?T.accent:T.textSoft,transition:"all 0.15s"}}>{t.label}</button>)}
     </div>
 
-    {/* ═══ GENERAL ═══ */}
+    {/* GENERAL TAB */}
     {tab==="general"&&<div style={{display:"grid",gap:"16px",maxWidth:"600px"}}>
-
-      {/* Company name */}
-      <Card style={{overflow:"hidden"}}>
-        <SectionHeader title="Identidad de la empresa"/>
-        <div style={{padding:"20px 22px"}}>
-          <label style={{display:"block",fontSize:"0.62rem",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"6px",letterSpacing:"0.14em",textTransform:"uppercase",fontWeight:500}}>
-            Nombre de la compañía
-          </label>
-          <div style={{display:"flex",gap:"10px",alignItems:"center"}}>
-            <input
-              type="text"
-              value={companyName}
-              onChange={e=>setCompanyName(e.target.value)}
-              placeholder="Ej. Acme Corporation S.L."
-              style={{flex:1,background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"8px",padding:"10px 14px",color:T.text,fontSize:"0.9rem",fontFamily:"'Outfit',sans-serif",outline:"none"}}
-            />
-          </div>
-          <p style={{fontSize:"0.75rem",color:T.textXSoft,marginTop:"8px",fontFamily:"'Outfit',sans-serif",fontWeight:300}}>
-            Este nombre aparece en la barra lateral debajo del logo de ConflictGuard.
-          </p>
-        </div>
-      </Card>
-
-      {/* Dark/Light mode toggle */}
-      <Card style={{overflow:"hidden"}}>
-        <SectionHeader title="Apariencia"/>
-        <div style={{padding:"20px 22px"}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"20px"}}>
-            <div>
-              <div style={{fontSize:"0.88rem",fontWeight:500,color:T.text,fontFamily:"'Outfit',sans-serif",marginBottom:"4px"}}>
-                Tema de la interfaz
-              </div>
-              <div style={{fontSize:"0.75rem",color:T.textSoft,fontFamily:"'Outfit',sans-serif",fontWeight:300}}>
-                {darkMode ? "Fondo oscuro (activo)" : "Fondo claro (activo)"}
-              </div>
-            </div>
-            <div style={{display:"flex",alignItems:"center",gap:"12px",flexShrink:0}}>
-              <span style={{fontSize:"0.78rem",color:T.mode==="dark"?T.textXSoft:T.accent,fontFamily:"'Outfit',sans-serif",fontWeight:T.mode==="dark"?300:500,transition:"all 0.2s"}}>☀ Claro</span>
-              <Toggle value={darkMode} onChange={setDarkMode} activeColor="#2169CC"/>
-              <span style={{fontSize:"0.78rem",color:T.mode==="dark"?T.accent:T.textXSoft,fontFamily:"'Outfit',sans-serif",fontWeight:T.mode==="dark"?500:300,transition:"all 0.2s"}}>◗ Oscuro</span>
-            </div>
-          </div>
-
-          {/* Visual preview */}
-          <div style={{marginTop:"16px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px"}}>
-            <div onClick={()=>setDarkMode(false)} style={{cursor:"pointer",borderRadius:"10px",overflow:"hidden",border:`2px solid ${!T.mode==="dark"?T.accentMid:"transparent"}`,transition:"all 0.2s",boxShadow:!T.mode==="dark"?"0 0 0 3px rgba(33,105,204,0.18)":"none"}}>
-              <div style={{background:"#F0F4FA",padding:"10px 12px",display:"flex",flexDirection:"column",gap:"5px"}}>
-                <div style={{display:"flex",gap:"5px",marginBottom:"3px"}}>
-                  <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#F87171"}}/>
-                  <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#FBBF24"}}/>
-                  <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#34D399"}}/>
-                </div>
-                <div style={{height:"5px",background:"rgba(24,83,168,0.15)",borderRadius:"3px",width:"60%"}}/>
-                <div style={{height:"5px",background:"rgba(24,83,168,0.08)",borderRadius:"3px",width:"85%"}}/>
-                <div style={{height:"5px",background:"rgba(24,83,168,0.08)",borderRadius:"3px",width:"70%"}}/>
-              </div>
-              <div style={{background:"#E6EDF7",padding:"5px 12px",fontSize:"0.65rem",color:"#4A6480",fontFamily:"'Outfit',sans-serif",textAlign:"center"}}>☀ Claro</div>
-            </div>
-            <div onClick={()=>setDarkMode(true)} style={{cursor:"pointer",borderRadius:"10px",overflow:"hidden",border:`2px solid ${T.mode==="dark"?T.accentMid:"transparent"}`,transition:"all 0.2s",boxShadow:T.mode==="dark"?"0 0 0 3px rgba(33,105,204,0.18)":"none"}}>
-              <div style={{background:"#08111F",padding:"10px 12px",display:"flex",flexDirection:"column",gap:"5px"}}>
-                <div style={{display:"flex",gap:"5px",marginBottom:"3px"}}>
-                  <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#F87171"}}/>
-                  <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#FBBF24"}}/>
-                  <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#34D399"}}/>
-                </div>
-                <div style={{height:"5px",background:"rgba(90,180,240,0.25)",borderRadius:"3px",width:"60%"}}/>
-                <div style={{height:"5px",background:"rgba(90,180,240,0.12)",borderRadius:"3px",width:"85%"}}/>
-                <div style={{height:"5px",background:"rgba(90,180,240,0.12)",borderRadius:"3px",width:"70%"}}/>
-              </div>
-              <div style={{background:"#0D1E35",padding:"5px 12px",fontSize:"0.65rem",color:T.textSoft,fontFamily:"'Outfit',sans-serif",textAlign:"center"}}>◗ Oscuro</div>
-            </div>
+      <Card>
+        <SectionHeader title="Configuración general"/>
+        <div style={{padding:"14px 16px",display:"grid",gap:"10px"}}>
+          <div><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Nombre de la empresa</label>
+          <input value={companyName} onChange={e=>setCompanyName(e.target.value)} style={{...inp,width:"100%"}}/></div>
+          <div style={{display:"flex",alignItems:"center",gap:"12px",padding:"13px 14px",background:darkMode?"rgba(167,139,250,0.08)":T.bgSoft,border:`1px solid ${darkMode?"rgba(167,139,250,0.3)":T.border}`,borderRadius:"9px"}}>
+            <div style={{width:"32px",height:"32px",borderRadius:"8px",background:darkMode?"#A78BFA":"rgba(90,180,240,0.12)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"16px"}}>🌙</div>
+            <div style={{flex:1}}><div style={{fontSize:"13px",fontWeight:600,color:T.text}}>Modo oscuro</div><div style={{fontSize:"11px",color:T.textSoft,marginTop:"2px"}}>Cambiar la apariencia de la interfaz.</div></div>
+            <Toggle value={darkMode} onChange={setDarkMode}/>
           </div>
         </div>
       </Card>
-
     </div>}
 
-
-    {/* ═══ USERS ═══ */}
+    {/* USERS TAB */}
     {tab==="users"&&<div>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px",flexWrap:"wrap",gap:"8px"}}>
-        <div style={{fontSize:"13px",color:T.textSoft}}>{users.length} usuarios · {users.filter(u=>u.active).length} activos</div>
-        <button onClick={openAddUser} style={{padding:"7px 15px",background:"linear-gradient(135deg,#2169CC,#1853A8)",border:"none",color:T.text,borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"12px",fontWeight:600}}>+ Añadir usuario</button>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px",flexWrap:"wrap",gap:"8px"}}>
+        <div style={{fontSize:"13px",color:T.textSoft,fontFamily:"'Outfit',sans-serif"}}>{users.length} usuarios</div>
+        <button onClick={openAddUser} style={{padding:"6px 14px",background:"linear-gradient(135deg,#2169CC,#1853A8)",border:"none",color:"#fff",borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"12px",fontWeight:600}}>+ Nuevo usuario</button>
       </div>
       {showAddUser&&<Card style={{marginBottom:"14px",border:`1px solid ${T.borderMid}`}}>
-        <SectionHeader title={editUser?"Editar usuario":"Nuevo usuario"}/>
-        <div style={{padding:"14px 16px"}}>
-          <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:"10px",marginBottom:"12px"}}>
-            {[["Nombre *","name","text"],["Apellido","lastName","text"],["Email *","email","email"],["Departamento","dept","text"]].map(([lbl,key,tp])=>(
-              <div key={key}><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>{lbl}</label><input type={tp} value={userForm[key]} onChange={e=>setUserForm({...userForm,[key]:e.target.value})} style={{...inp,width:"100%"}}/></div>
-            ))}
-            <div><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Rol</label><select value={userForm.role} onChange={e=>setUserForm({...userForm,role:e.target.value})} style={{...inp,width:"100%",cursor:"pointer"}}>{Object.keys(ROLE_CFG).map(r=><option key={r} value={r}>{r}</option>)}</select></div>
-            <div><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Mercado</label><select value={userForm.market} onChange={e=>setUserForm({...userForm,market:e.target.value})} style={{...inp,width:"100%",cursor:"pointer"}}>{markets.map(m=><option key={m.id} value={m.name}>{m.name}</option>)}</select></div>
-            <div style={{gridColumn:isMobile?"":"1 / -1"}}><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Manager directo</label><select value={userForm.manager||""} onChange={e=>setUserForm({...userForm,manager:e.target.value})} style={{...inp,width:"100%",cursor:"pointer"}}><option value="">Sin manager</option>{users.filter(u=>u.id!==(editUser?.id)).map(u=><option key={u.id} value={u.name}>{fullName(u)} ({u.role})</option>)}</select></div>
-          </div>
-          <div style={{display:"flex",gap:"8px",justifyContent:"flex-end"}}>
-            <button onClick={()=>{setShowAddUser(false);setEditUser(null);}} style={{padding:"7px 14px",background:T.accentLight,border:`1px solid ${T.border}`,color:T.textSoft,borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px"}}>Cancelar</button>
-            <button onClick={saveUser} style={{padding:"7px 14px",background:T.accent,border:"none",color:T.text,borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600}}>{editUser?"Guardar":"Crear usuario"}</button>
+        <SectionHeader title={editUser?"Editar usuario":"Nuevo usuario"} right={<button onClick={()=>setShowAddUser(false)} style={{background:"none",border:"none",cursor:"pointer",color:T.textSoft,fontSize:"16px"}}>✕</button>}/>
+        <div style={{padding:"14px 16px",display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:"10px"}}>
+          {[["name","Nombre"],["lastName","Apellidos"],["email","Email"],["dept","Departamento"]].map(([k,l])=><div key={k}><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>{l}</label><input value={userForm[k]} onChange={e=>setUserForm({...userForm,[k]:e.target.value})} style={{...inp,width:"100%"}}/></div>)}
+          <div><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Rol</label>
+            <select value={userForm.role} onChange={e=>setUserForm({...userForm,role:e.target.value})} style={{...inp,width:"100%",cursor:"pointer"}}>
+              {["Empleado","Manager","Compliance Manager","Head de Legal","Administrador Empresa"].map(r=><option key={r} value={r}>{r}</option>)}
+            </select></div>
+          <div><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Mercado</label>
+            <select value={userForm.market} onChange={e=>setUserForm({...userForm,market:e.target.value})} style={{...inp,width:"100%",cursor:"pointer"}}>
+              {markets.map(m=><option key={m.id} value={m.name}>{m.name}</option>)}
+            </select></div>
+          <div style={{gridColumn:"1/-1",display:"flex",gap:"8px",justifyContent:"flex-end"}}>
+            <button onClick={()=>setShowAddUser(false)} style={{padding:"7px 14px",background:T.accentLight,border:`1px solid ${T.border}`,color:T.textSoft,borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px"}}>Cancelar</button>
+            <button onClick={saveUser} style={{padding:"7px 14px",background:"linear-gradient(135deg,#2169CC,#1853A8)",border:"none",color:"#fff",borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600}}>{editUser?"Guardar cambios":"Crear usuario"}</button>
           </div>
         </div>
       </Card>}
-      {isMobile?<div style={{display:"grid",gap:"8px"}}>{users.map(u=><Card key={u.id} style={{padding:"12px",opacity:u.active?1:0.6}}>
-        <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"7px"}}><div style={{width:"30px",height:"30px",borderRadius:"50%",background:"linear-gradient(135deg,#1853A8,#5AB4F0)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"12px",fontWeight:700,color:T.text,flexShrink:0}}>{u.name[0]}</div><div style={{flex:1,minWidth:0}}><div style={{fontSize:"13px",fontWeight:600,color:T.text}}>{fullName(u)}</div><div style={{fontSize:"11px",color:T.textSoft,fontFamily:"'Outfit',sans-serif"}}>{u.email}</div></div></div>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"5px"}}><div style={{display:"flex",gap:"5px",alignItems:"center"}}><RoleBadge role={u.role}/><span style={{fontSize:"10px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif"}}>{u.market}</span></div><div style={{display:"flex",gap:"5px"}}>
-          <button onClick={()=>toggleActive(u.id)} style={{padding:"3px 7px",borderRadius:"4px",fontSize:"10px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontWeight:600,background:u.active?"rgba(52,211,153,0.08)":T.accentLight,border:`1px solid ${u.active?"rgba(52,211,153,0.3)":T.border}`,color:u.active?"#34D399":T.textSoft}}>{u.active?"✓":"○"}</button>
-          <button onClick={()=>openEditUser(u)} style={{padding:"3px 7px",borderRadius:"4px",fontSize:"10px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,color:"#5AB4F0"}}>✎</button>
-          <button onClick={()=>setConfirmDelete(u)} style={{padding:"3px 7px",borderRadius:"4px",fontSize:"10px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",background:"rgba(248,113,113,0.08)",border:"1px solid rgba(248,113,113,0.25)",color:"#F87171"}}>✕</button>
-        </div></div>
-      </Card>)}</div>:(
-      <Card style={{overflow:"hidden"}}>
-        <table style={{width:"100%",borderCollapse:"collapse"}}>
-          <thead><tr style={{borderBottom:`1px solid ${T.border}`,background:T.mode==="dark"?"rgba(90,180,240,0.04)":"rgba(24,83,168,0.03)"}}>{["Usuario","Email","Rol","Mercado","Dept","Manager","Estado","Acc."].map(h=><th key={h} style={{padding:"9px 12px",textAlign:"left",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",letterSpacing:"0.06em",textTransform:"uppercase",fontWeight:600,whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
-          <tbody>{users.map((u,i)=><tr key={u.id} style={{borderBottom:i<users.length-1?`1px solid ${T.border}`:"none",opacity:u.active?1:0.55}} onMouseEnter={e=>e.currentTarget.style.background=T.mode==="dark"?"rgba(90,180,240,0.04)":"rgba(24,83,168,0.04)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-            <td style={{padding:"10px 12px"}}><div style={{display:"flex",alignItems:"center",gap:"7px"}}><div style={{width:"26px",height:"26px",borderRadius:"50%",background:"linear-gradient(135deg,#1853A8,#5AB4F0)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"10px",fontWeight:700,color:T.text,flexShrink:0}}>{u.name[0]}</div><span style={{fontSize:"12px",color:T.text,fontWeight:500,whiteSpace:"nowrap"}}>{fullName(u)}</span></div></td>
-            <td style={{padding:"10px 12px"}}><span style={{fontSize:"11px",color:T.textSoft,fontFamily:"'Outfit',sans-serif"}}>{u.email}</span></td>
-            <td style={{padding:"10px 12px"}}><RoleBadge role={u.role}/></td>
-            <td style={{padding:"10px 12px"}}><span style={{fontSize:"11px",color:T.textSoft,fontFamily:"'Outfit',sans-serif"}}>{u.market||"—"}</span></td>
-            <td style={{padding:"10px 12px"}}><span style={{fontSize:"12px",color:T.textMid}}>{u.dept||"—"}</span></td>
-            <td style={{padding:"10px 12px"}}><span style={{fontSize:"11px",color:T.textSoft}}>{u.manager||"—"}</span></td>
-            <td style={{padding:"10px 12px"}}><button onClick={()=>toggleActive(u.id)} style={{padding:"3px 8px",borderRadius:"4px",fontSize:"10px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontWeight:600,background:u.active?"rgba(52,211,153,0.08)":T.accentLight,border:`1px solid ${u.active?"rgba(52,211,153,0.3)":T.border}`,color:u.active?"#34D399":T.textSoft}}>{u.active?"Activo":"Inactivo"}</button></td>
-            <td style={{padding:"10px 12px"}}><div style={{display:"flex",gap:"4px"}}><button onClick={()=>openEditUser(u)} style={{padding:"3px 8px",borderRadius:"4px",fontSize:"10px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,color:"#5AB4F0"}}>✎</button><button onClick={()=>setConfirmDelete(u)} style={{padding:"3px 8px",borderRadius:"4px",fontSize:"10px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",background:"rgba(248,113,113,0.08)",border:"1px solid rgba(248,113,113,0.25)",color:"#F87171"}}>✕</button></div></td>
-          </tr>)}</tbody>
-        </table>
-      </Card>)}
+      <Card>
+        <div style={{overflowX:"auto"}}>
+          <table style={{width:"100%",borderCollapse:"collapse",fontFamily:"'Outfit',sans-serif",fontSize:"12px"}}>
+            <thead><tr style={{background:T.tableHead}}>{["Nombre","Rol","Dpto.","Mercado","Estado",""].map(h=><th key={h} style={{padding:"9px 12px",textAlign:"left",fontSize:"10px",color:T.textSoft,fontWeight:600,letterSpacing:"0.05em",textTransform:"uppercase",whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
+            <tbody>{users.map(u=><tr key={u.id} style={{borderTop:`1px solid ${T.border}`}}>
+              <td style={{padding:"10px 12px",color:T.text,fontWeight:500}}>{fullName(u)}<div style={{fontSize:"10px",color:T.textXSoft,marginTop:"1px"}}>{u.email}</div></td>
+              <td style={{padding:"10px 12px",color:T.textMid}}><span style={{background:T.accentLight,border:`1px solid ${T.border}`,borderRadius:"4px",padding:"2px 7px",fontSize:"10px",color:T.accent}}>{u.role}</span></td>
+              <td style={{padding:"10px 12px",color:T.textSoft}}>{u.dept||"—"}</td>
+              <td style={{padding:"10px 12px",color:T.textSoft}}>{u.market||"—"}</td>
+              <td style={{padding:"10px 12px"}}><button onClick={()=>toggleActive(u.id)} style={{background:u.active?"rgba(52,211,153,0.08)":"rgba(248,113,113,0.08)",border:`1px solid ${u.active?"rgba(52,211,153,0.25)":"rgba(248,113,113,0.25)"}`,color:u.active?"#34D399":"#F87171",borderRadius:"4px",padding:"2px 8px",cursor:"pointer",fontSize:"10px",fontFamily:"'Outfit',sans-serif",fontWeight:600}}>{u.active?"Activo":"Inactivo"}</button></td>
+              <td style={{padding:"10px 12px",whiteSpace:"nowrap"}}>
+                <button onClick={()=>openEditUser(u)} style={{background:"none",border:"none",cursor:"pointer",color:T.accent,fontSize:"11px",fontFamily:"'Outfit',sans-serif",padding:"2px 6px"}}>Editar</button>
+                <button onClick={()=>setConfirmDelete(u)} style={{background:"none",border:"none",cursor:"pointer",color:"#F87171",fontSize:"11px",fontFamily:"'Outfit',sans-serif",padding:"2px 6px"}}>Eliminar</button>
+              </td>
+            </tr>)}</tbody>
+          </table>
+        </div>
+      </Card>
     </div>}
 
-    {/* ═══ MARKETS ═══ */}
+    {/* MARKETS TAB */}
     {tab==="markets"&&<div>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px",flexWrap:"wrap",gap:"8px"}}>
-        <div style={{fontSize:"13px",color:T.textSoft}}>{markets.length} mercados configurados</div>
-        <button onClick={openAddMkt} style={{padding:"7px 15px",background:"linear-gradient(135deg,#2169CC,#1853A8)",border:"none",color:T.text,borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"12px",fontWeight:600}}>+ Nuevo mercado</button>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px",flexWrap:"wrap",gap:"8px"}}>
+        <div style={{fontSize:"13px",color:T.textSoft,fontFamily:"'Outfit',sans-serif"}}>{markets.length} mercados</div>
+        <button onClick={openAddMkt} style={{padding:"6px 14px",background:"linear-gradient(135deg,#2169CC,#1853A8)",border:"none",color:"#fff",borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"12px",fontWeight:600}}>+ Nuevo mercado</button>
       </div>
       {showAddMkt&&<Card style={{marginBottom:"14px",border:`1px solid ${T.borderMid}`}}>
-        <SectionHeader title={editMkt?"Editar mercado":"Nuevo mercado"}/>
-        <div style={{padding:"14px 16px"}}>
-          <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:"10px",marginBottom:"12px"}}>
-            <div><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Nombre *</label><input value={mktForm.name} onChange={e=>setMktForm({...mktForm,name:e.target.value})} placeholder="Ej: EMEA, UK, LATAM…" style={{...inp,width:"100%"}}/></div>
-            <div><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Países / regiones</label><input value={mktForm.countries} onChange={e=>setMktForm({...mktForm,countries:e.target.value})} placeholder="Ej: España, Portugal" style={{...inp,width:"100%"}}/></div>
-          </div>
-          <div style={{display:"flex",gap:"8px",justifyContent:"flex-end"}}>
-            <button onClick={()=>{setShowAddMkt(false);setEditMkt(null);}} style={{padding:"7px 14px",background:T.accentLight,border:`1px solid ${T.border}`,color:T.textSoft,borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px"}}>Cancelar</button>
-            <button onClick={saveMkt} style={{padding:"7px 14px",background:T.accent,border:"none",color:T.text,borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600}}>{editMkt?"Guardar":"Crear mercado"}</button>
+        <SectionHeader title={editMkt?"Editar mercado":"Nuevo mercado"} right={<button onClick={()=>setShowAddMkt(false)} style={{background:"none",border:"none",cursor:"pointer",color:T.textSoft,fontSize:"16px"}}>✕</button>}/>
+        <div style={{padding:"14px 16px",display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:"10px"}}>
+          <div><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Nombre</label><input value={mktForm.name} onChange={e=>setMktForm({...mktForm,name:e.target.value})} style={{...inp,width:"100%"}}/></div>
+          <div><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Países</label><input value={mktForm.countries} onChange={e=>setMktForm({...mktForm,countries:e.target.value})} placeholder="España, Portugal…" style={{...inp,width:"100%"}}/></div>
+          <div style={{gridColumn:"1/-1",display:"flex",gap:"8px",justifyContent:"flex-end"}}>
+            <button onClick={()=>setShowAddMkt(false)} style={{padding:"7px 14px",background:T.accentLight,border:`1px solid ${T.border}`,color:T.textSoft,borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px"}}>Cancelar</button>
+            <button onClick={saveMkt} style={{padding:"7px 14px",background:"linear-gradient(135deg,#2169CC,#1853A8)",border:"none",color:"#fff",borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600}}>{editMkt?"Guardar":"Crear mercado"}</button>
           </div>
         </div>
       </Card>}
       <div style={{display:"grid",gap:"10px"}}>
-        {markets.map(m=><Card key={m.id} style={{overflow:"hidden",opacity:m.active?1:0.65}}>
-          <div style={{padding:"14px 18px",display:"flex",alignItems:"center",gap:"12px",flexWrap:"wrap"}}>
-            <div style={{width:"38px",height:"38px",borderRadius:"9px",background:"linear-gradient(135deg,#2169CC,#1853A8)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"16px",flexShrink:0}}>🌍</div>
-            <div style={{flex:1,minWidth:"120px"}}><div style={{fontSize:"15px",fontWeight:700,color:T.text,fontFamily:"'Outfit',sans-serif"}}>{m.name}</div><div style={{fontSize:"12px",color:T.textSoft,marginTop:"2px"}}>{m.countries||"Sin países definidos"}</div></div>
-            <div style={{display:"flex",alignItems:"center",gap:"8px",flexShrink:0}}>
-              <span style={{fontSize:"11px",color:T.textSoft,fontFamily:"'Outfit',sans-serif"}}>{users.filter(u=>u.market===m.name).length} usuarios</span>
-              <button onClick={()=>openEditMkt(m)} style={{padding:"4px 10px",borderRadius:"5px",fontSize:"11px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,color:"#5AB4F0"}}>✎ Editar</button>
-              <button onClick={()=>deleteMkt(m.id)} style={{padding:"4px 10px",borderRadius:"5px",fontSize:"11px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",background:"rgba(248,113,113,0.08)",border:"1px solid rgba(248,113,113,0.25)",color:"#F87171"}}>✕</button>
+        {markets.map(m=><Card key={m.id}>
+          <div style={{padding:"14px 16px",display:"flex",alignItems:"center",gap:"12px",flexWrap:"wrap"}}>
+            <div style={{flex:1}}>
+              <div style={{fontSize:"14px",fontWeight:600,color:T.text}}>{m.name}</div>
+              <div style={{fontSize:"11px",color:T.textSoft,marginTop:"2px"}}>{m.countries}</div>
+              <div style={{fontSize:"10px",color:T.textXSoft,marginTop:"4px"}}>{(m.workflowTypes||[]).length} workflow(s): {(m.workflowTypes||[]).map(wt=>wt.name).join(", ")||"—"}</div>
             </div>
+            <button onClick={()=>openEditMkt(m)} style={{padding:"5px 12px",background:T.accentLight,border:`1px solid ${T.border}`,color:T.accent,borderRadius:"5px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px"}}>Editar</button>
+            {markets.length>1&&<button onClick={()=>deleteMkt(m.id)} style={{padding:"5px 10px",background:"rgba(248,113,113,0.06)",border:"1px solid rgba(248,113,113,0.3)",color:"#F87171",borderRadius:"5px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px"}}>Eliminar</button>}
           </div>
         </Card>)}
         {markets.length===0&&<div style={{textAlign:"center",padding:"40px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif",fontSize:"12px"}}>Sin mercados. Crea el primero.</div>}
       </div>
     </div>}
 
-    {/* Market selector for workflow/form tabs */}
+    {/* MARKET + WORKFLOW SELECTOR (shared for workflow & form tabs) */}
     {(tab==="workflow"||tab==="form")&&<div>
-      <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"16px",padding:"10px 14px",background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"9px",flexWrap:"wrap"}}>
+      {/* Market selector */}
+      <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"10px",padding:"10px 14px",background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"9px",flexWrap:"wrap"}}>
         <span style={{fontSize:"11px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",fontWeight:600,letterSpacing:"0.05em",textTransform:"uppercase",flexShrink:0}}>Mercado:</span>
         <div style={{display:"flex",gap:"5px",flexWrap:"wrap"}}>
-          {markets.map(m=><button key={m.id} onClick={()=>setSelectedMktId(m.id)} style={{padding:"5px 13px",borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"12px",fontWeight:600,border:`1px solid ${selectedMktId===m.id?T.borderMid:T.border}`,background:selectedMktId===m.id?T.accentLight:T.bgSoft,color:selectedMktId===m.id?T.accent:T.textSoft}}>{m.name}</button>)}
+          {markets.map(m=><button key={m.id} onClick={()=>{setSelectedMktId(m.id);setSelectedWtId((m.workflowTypes||[])[0]?.id||"");}} style={{padding:"5px 13px",borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"12px",fontWeight:600,border:`1px solid ${selectedMktId===m.id?T.borderMid:T.border}`,background:selectedMktId===m.id?T.accentLight:T.bgSoft,color:selectedMktId===m.id?T.accent:T.textSoft}}>{m.name}</button>)}
         </div>
-        {selMkt&&<span style={{fontSize:"11px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif",marginLeft:"auto"}}>{selMkt.countries}</span>}
       </div>
 
-      {/* ═══ WORKFLOW ═══ */}
-      {tab==="workflow"&&selMkt&&<div>
+      {/* Workflow type selector bar */}
+      <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"16px",padding:"10px 14px",background:T.bgCard,border:`1px solid ${T.border}`,borderRadius:"9px",flexWrap:"wrap"}}>
+        <span style={{fontSize:"11px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",fontWeight:600,letterSpacing:"0.05em",textTransform:"uppercase",flexShrink:0}}>Workflow:</span>
+        <div style={{display:"flex",gap:"5px",flexWrap:"wrap",flex:1}}>
+          {workflowTypes.map(wt=><button key={wt.id} onClick={()=>setSelectedWtId(wt.id)} style={{padding:"5px 13px",borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"12px",fontWeight:600,border:`1px solid ${(selWt?.id)===wt.id?T.borderMid:T.border}`,background:(selWt?.id)===wt.id?T.accentLight:T.bgSoft,color:(selWt?.id)===wt.id?T.accent:T.textSoft}}>{wt.name}</button>)}
+          {workflowTypes.length===0&&<span style={{fontSize:"12px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif",padding:"4px 0"}}>Sin workflows.</span>}
+        </div>
+        <div style={{display:"flex",gap:"6px",flexShrink:0}}>
+          <button onClick={()=>{setWtForm({name:"",categoryValue:""});setShowAddWt(true);}} style={{padding:"5px 12px",borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600,border:`1px solid ${T.borderMid}`,background:T.accentLight,color:T.accent}}>+ Nuevo workflow</button>
+          {selWt&&workflowTypes.length>1&&<button onClick={()=>deleteWorkflowType(selWt.id)} style={{padding:"5px 10px",borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",border:"1px solid rgba(248,113,113,0.3)",background:"rgba(248,113,113,0.06)",color:"#F87171"}}>✕ Eliminar</button>}
+        </div>
+      </div>
+
+      {/* New workflow form */}
+      {showAddWt&&<Card style={{marginBottom:"14px",border:`1px solid ${T.borderMid}`}}>
+        <SectionHeader title="Nuevo workflow" right={<button onClick={()=>setShowAddWt(false)} style={{background:"none",border:"none",cursor:"pointer",color:T.textSoft,fontSize:"16px"}}>✕</button>}/>
+        <div style={{padding:"14px 16px"}}>
+          <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:"10px",marginBottom:"12px"}}>
+            <div>
+              <label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Nombre del workflow *</label>
+              <input value={wtForm.name} onChange={e=>setWtForm({...wtForm,name:e.target.value})} placeholder="Ej. Inversiones financieras" style={{...inp,width:"100%"}}/>
+            </div>
+            <div>
+              <label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Valor categoría (si diferente)</label>
+              <input value={wtForm.categoryValue} onChange={e=>setWtForm({...wtForm,categoryValue:e.target.value})} placeholder="Por defecto igual al nombre" style={{...inp,width:"100%"}}/>
+            </div>
+          </div>
+          <p style={{fontSize:"12px",color:T.textSoft,marginBottom:"12px",lineHeight:1.6}}>El nombre aparecerá como opción en el campo <b>Categoría de la solicitud</b> del formulario.</p>
+          <div style={{display:"flex",gap:"8px",justifyContent:"flex-end"}}>
+            <button onClick={()=>setShowAddWt(false)} style={{padding:"7px 14px",background:T.bgSoft,border:`1px solid ${T.border}`,color:T.textSoft,borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px"}}>Cancelar</button>
+            <button onClick={addWorkflowType} style={{padding:"7px 14px",background:"linear-gradient(135deg,#2169CC,#1853A8)",border:"none",color:"#fff",borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600}}>Crear workflow</button>
+          </div>
+        </div>
+      </Card>}
+
+      {/* ═══ WORKFLOW TAB ═══ */}
+      {tab==="workflow"&&selWt&&<div>
         <Card style={{marginBottom:"14px"}}>
-          <SectionHeader title={`Workflow — ${selMkt.name}`}/>
+          <SectionHeader title={`Configuración — ${selWt.name}`}/>
           <div style={{padding:"14px 16px"}}>
-            <div style={{marginBottom:"12px",padding:"10px 12px",background:"rgba(201,168,76,0.08)",border:"1px solid rgba(201,168,76,0.28)",borderRadius:"7px",fontSize:"11px",color:"#92400E"}}>💡 Los cambios aplican a nuevas declaraciones de este mercado.</div>
+            <div style={{marginBottom:"12px",padding:"10px 12px",background:"rgba(201,168,76,0.08)",border:"1px solid rgba(201,168,76,0.28)",borderRadius:"7px",fontSize:"11px",color:"#92400E"}}>💡 Los cambios aplican a nuevas declaraciones de categoría <b>{selWt.name}</b>.</div>
             <div style={{display:"grid",gap:"9px"}}>
-              {wfOpts.map(opt=><div key={opt.key} style={{display:"flex",alignItems:"center",gap:"12px",padding:"13px 14px",background:wf[opt.key]?"rgba(167,139,250,0.08)":T.bgSoft,border:`1px solid ${wf[opt.key]?"rgba(167,139,250,0.3)":T.border}`,borderRadius:"9px",transition:"all 0.2s"}}>
+              {wfOpts.map(opt=><div key={opt.key} style={{display:"flex",alignItems:"center",gap:"12px",padding:"13px 14px",background:wf[opt.key]?"rgba(167,139,250,0.08)":T.bgSoft,border:`1px solid ${wf[opt.key]?"rgba(167,139,250,0.3)":T.border}`,borderRadius:"9px"}}>
                 <div style={{width:"32px",height:"32px",borderRadius:"8px",background:wf[opt.key]?opt.c:"rgba(90,180,240,0.12)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px",color:wf[opt.key]?"white":T.textXSoft,flexShrink:0}}>{opt.icon}</div>
                 <div style={{flex:1}}><div style={{fontSize:"13px",fontWeight:600,color:T.text}}>{opt.label}</div><div style={{fontSize:"11px",color:T.textSoft,marginTop:"2px"}}>{opt.desc}</div></div>
                 <Toggle value={!!wf[opt.key]} onChange={v=>setWf({[opt.key]:v})}/>
@@ -1231,12 +1265,56 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
             </div>
           </div>
         </Card>
-        <Card style={{marginBottom:"14px"}}>
-          <SectionHeader title="Escalado"/>
+
+        {/* Thresholds */}
+        <Card style={{marginBottom:"14px",border:wf.thresholdsEnabled?`1px solid rgba(201,168,76,0.35)`:`1px solid ${T.border}`}}>
+          <SectionHeader title="Umbrales automáticos (Thresholds)"/>
           <div style={{padding:"14px 16px"}}>
-            <div style={{display:"flex",alignItems:"center",gap:"12px",padding:"13px 14px",background:wf.allowEscalation?"rgba(248,113,113,0.08)":T.bgSoft,border:`1px solid ${wf.allowEscalation?"rgba(248,113,113,0.3)":T.border}`,borderRadius:"9px",marginBottom:"12px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"12px",padding:"13px 14px",background:wf.thresholdsEnabled?"rgba(201,168,76,0.08)":T.bgSoft,border:`1px solid ${wf.thresholdsEnabled?"rgba(201,168,76,0.3)":T.border}`,borderRadius:"9px",marginBottom:wf.thresholdsEnabled?"14px":"0"}}>
+              <div style={{width:"32px",height:"32px",borderRadius:"8px",background:wf.thresholdsEnabled?"#C9A84C":"rgba(90,180,240,0.12)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"16px",color:wf.thresholdsEnabled?"white":T.textXSoft,flexShrink:0}}>⚖</div>
+              <div style={{flex:1}}><div style={{fontSize:"13px",fontWeight:600,color:T.text}}>Habilitar thresholds por valor</div><div style={{fontSize:"11px",color:T.textSoft,marginTop:"2px"}}>Aprobación automática o escalado según el valor económico declarado.</div></div>
+              <Toggle value={!!wf.thresholdsEnabled} onChange={v=>setWf({thresholdsEnabled:v})}/>
+            </div>
+            {wf.thresholdsEnabled&&<div style={{display:"grid",gap:"12px"}}>
+              <div style={{padding:"14px",background:"rgba(52,211,153,0.06)",border:"1px solid rgba(52,211,153,0.22)",borderRadius:"9px"}}>
+                <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px"}}>
+                  <div style={{width:"26px",height:"26px",borderRadius:"6px",background:"rgba(52,211,153,0.15)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"13px"}}>✓</div>
+                  <div><div style={{fontSize:"13px",fontWeight:600,color:T.text}}>Auto-aprobación</div><div style={{fontSize:"11px",color:T.textSoft}}>Por debajo de este valor, la declaración se aprueba automáticamente.</div></div>
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:"10px",flexWrap:"wrap"}}>
+                  <span style={{fontSize:"12px",color:T.textMid,whiteSpace:"nowrap"}}>Valor máximo (€):</span>
+                  <input type="number" min={0} value={wf.thresholdAutoApprove??50} onChange={e=>setWf({thresholdAutoApprove:Number(e.target.value)})} style={{...inp,width:"90px",padding:"6px 10px",fontSize:"13px",fontWeight:600}}/>
+                  <span style={{fontSize:"11px",color:"#34D399"}}>→ Se auto-aprueba si valor &lt; {wf.thresholdAutoApprove??50}€</span>
+                </div>
+              </div>
+              <div style={{padding:"14px",background:"rgba(90,180,240,0.06)",border:`1px solid ${T.borderMid}`,borderRadius:"9px"}}>
+                <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px"}}>
+                  <div style={{width:"26px",height:"26px",borderRadius:"6px",background:"rgba(90,180,240,0.15)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"13px"}}>⏭</div>
+                  <div><div style={{fontSize:"13px",fontWeight:600,color:T.text}}>Saltar a Compliance directamente</div><div style={{fontSize:"11px",color:T.textSoft}}>{wf.requireComplianceReview?"Por encima de este valor, se salta el Line Manager y va directo a Compliance.":"⚠ Habilita Revisión por Compliance para activar este threshold."}</div></div>
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:"10px",flexWrap:"wrap"}}>
+                  <span style={{fontSize:"12px",color:T.textMid,whiteSpace:"nowrap"}}>Valor mínimo (€):</span>
+                  <input type="number" min={0} value={wf.thresholdSkipToCompliance??150} onChange={e=>setWf({thresholdSkipToCompliance:Number(e.target.value)})} disabled={!wf.requireComplianceReview} style={{...inp,width:"90px",padding:"6px 10px",fontSize:"13px",fontWeight:600,opacity:wf.requireComplianceReview?1:0.4}}/>
+                  <span style={{fontSize:"11px",color:"#5AB4F0"}}>→ Va directo a Compliance si valor &gt; {wf.thresholdSkipToCompliance??150}€</span>
+                </div>
+              </div>
+              <div style={{padding:"10px 14px",background:T.bgSoft,borderRadius:"8px",border:`1px solid ${T.border}`,display:"flex",gap:"6px",flexWrap:"wrap",alignItems:"center"}}>
+                <span style={{fontSize:"10px",fontFamily:"'Outfit',sans-serif",color:T.textSoft,marginRight:"4px",fontWeight:600}}>Reglas:</span>
+                <span style={{fontSize:"10px",background:"rgba(52,211,153,0.10)",border:"1px solid rgba(52,211,153,0.28)",borderRadius:"4px",padding:"2px 8px",color:"#34D399"}}>✓ 0–{wf.thresholdAutoApprove??50}€ → Auto-aprobado</span>
+                <span style={{fontSize:"10px",background:"rgba(201,168,76,0.08)",border:"1px solid rgba(201,168,76,0.25)",borderRadius:"4px",padding:"2px 8px",color:"#C9A84C"}}>{(wf.thresholdAutoApprove??50)+1}–{wf.thresholdSkipToCompliance??150}€ → Flujo normal</span>
+                <span style={{fontSize:"10px",background:"rgba(90,180,240,0.08)",border:`1px solid ${T.borderMid}`,borderRadius:"4px",padding:"2px 8px",color:"#5AB4F0"}}>⏭ &gt;{wf.thresholdSkipToCompliance??150}€ → Directo a Compliance</span>
+              </div>
+            </div>}
+          </div>
+        </Card>
+
+        {/* Escalado */}
+        <Card style={{marginBottom:"14px"}}>
+          <SectionHeader title="Escalado a Legal"/>
+          <div style={{padding:"14px 16px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"12px",padding:"13px 14px",background:wf.allowEscalation?"rgba(248,113,113,0.08)":T.bgSoft,border:`1px solid ${wf.allowEscalation?"rgba(248,113,113,0.3)":T.border}`,borderRadius:"9px",marginBottom:wf.allowEscalation?"12px":"0"}}>
               <div style={{width:"32px",height:"32px",borderRadius:"8px",background:wf.allowEscalation?"#F87171":"rgba(90,180,240,0.12)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px",color:wf.allowEscalation?"white":T.textXSoft,flexShrink:0}}>⚠</div>
-              <div style={{flex:1}}><div style={{fontSize:"13px",fontWeight:600,color:T.text}}>Permitir escalado</div><div style={{fontSize:"11px",color:T.textSoft,marginTop:"2px"}}>Managers pueden escalar a un <b>Head de Legal</b>.</div></div>
+              <div style={{flex:1}}><div style={{fontSize:"13px",fontWeight:600,color:T.text}}>Permitir escalado a Legal</div><div style={{fontSize:"11px",color:T.textSoft,marginTop:"2px"}}>Managers pueden escalar al Head de Legal.</div></div>
               <Toggle value={!!wf.allowEscalation} onChange={v=>setWf({allowEscalation:v})}/>
             </div>
             {wf.allowEscalation&&<div>
@@ -1247,6 +1325,8 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
             </div>}
           </div>
         </Card>
+
+        {/* Flow preview */}
         <Card>
           <SectionHeader title="Vista previa del flujo"/>
           <div style={{padding:"14px 16px",overflowX:"auto"}}>
@@ -1258,7 +1338,7 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
                 </div>
                 {i<arr.length-1&&<div style={{width:"24px",height:"2px",background:`linear-gradient(90deg,${s.c},${arr[i+1].c})`,margin:"0 2px 13px",flexShrink:0}}/>}
               </div>)}
-              {wf.allowEscalation&&<div style={{marginLeft:"10px",paddingLeft:"10px",borderLeft:"1px dashed rgba(90,180,240,0.12)",display:"flex",alignItems:"center",gap:"3px"}}>
+              {wf.allowEscalation&&<div style={{marginLeft:"10px",paddingLeft:"10px",borderLeft:`1px dashed ${T.border}`,display:"flex",alignItems:"center",gap:"3px"}}>
                 <span style={{fontSize:"9px",color:"#F87171",marginBottom:"12px"}}>↗</span>
                 <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"4px",flexShrink:0}}><div style={{width:"32px",height:"32px",borderRadius:"50%",background:"#F87171",display:"flex",alignItems:"center",justifyContent:"center",color:"#FFFFFF",fontSize:"11px",boxShadow:"0 2px 6px #F8717140"}}>⚠</div><span style={{fontSize:"9px",color:"#F87171",fontFamily:"'Outfit',sans-serif",fontWeight:600}}>Escalado</span></div>
               </div>}
@@ -1266,65 +1346,106 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
           </div>
         </Card>
       </div>}
+      {tab==="workflow"&&!selWt&&<div style={{textAlign:"center",padding:"40px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif",fontSize:"13px",background:T.bgCard,borderRadius:"12px",border:`1px solid ${T.border}`}}>Sin workflows. Pulsa <b style={{color:T.accent}}>+ Nuevo workflow</b> para crear el primero.</div>}
 
-      {/* ═══ FORM ═══ */}
-      {tab==="form"&&selMkt&&<div>
-        <Card style={{marginBottom:"14px"}}>
-          <SectionHeader title={`Texto introductorio — ${selMkt.name}`}/>
+      {/* ═══ FORM TAB ═══ */}
+      {tab==="form"&&selWt&&<div>
+        <Card style={{marginBottom:"14px",border:`1px solid rgba(90,180,240,0.18)`}}>
+          <SectionHeader title="Campo compartido (sistema)"/>
           <div style={{padding:"14px 16px"}}>
-            <label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Texto bajo "Nueva Declaración"</label>
-            <textarea value={formMeta.subtitle} onChange={e=>setFormMeta({...formMeta,subtitle:e.target.value})} rows={3} style={{width:"100%",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"7px",padding:"8px 11px",fontSize:"13px",color:T.text,fontFamily:"'Outfit',sans-serif",outline:"none",resize:"vertical",boxSizing:"border-box",lineHeight:1.65}}/>
-            <div style={{fontSize:"10px",color:T.textXSoft,marginTop:"4px",fontFamily:"'Outfit',sans-serif"}}>{formMeta.subtitle.length} caracteres</div>
-          </div>
-        </Card>
-        <Card style={{marginBottom:"14px"}}>
-          <SectionHeader title={`Campos — ${selMkt.name} (${fields.filter(f=>f.active).length} activos)`} right={<button onClick={()=>setFields([...fields,{id:`cf${Date.now()}`,label:"Nuevo campo",type:"short_text",required:false,active:true,options:[]}])} style={{padding:"4px 11px",background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,color:"#5AB4F0",borderRadius:"5px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600}}>+ Campo</button>}/>
-          <div style={{padding:"12px 14px"}}>
-            <div style={{display:"grid",gap:"7px"}}>
-              {fields.map((f,i)=><div key={f.id} style={{border:`1px solid ${f.active?T.border:"rgba(109,135,168,0.08)"}`,borderRadius:"9px",background:f.active?T.bgCard:T.bgSoft,opacity:f.active?1:0.6}}>
-                <div style={{display:"flex",alignItems:"center",gap:"7px",padding:"10px 12px",flexWrap:"wrap"}}>
-                  <div style={{display:"flex",flexDirection:"column",gap:"2px",flexShrink:0}}>
-                    <button onClick={()=>moveField(i,-1)} disabled={i===0} style={{background:"none",border:"none",cursor:i===0?"default":"pointer",color:i===0?T.textXSoft:T.textSoft,fontSize:"8px",padding:"0",lineHeight:1}}>▲</button>
-                    <button onClick={()=>moveField(i,1)} disabled={i===fields.length-1} style={{background:"none",border:"none",cursor:i===fields.length-1?"default":"pointer",color:i===fields.length-1?T.textXSoft:T.textSoft,fontSize:"8px",padding:"0",lineHeight:1}}>▼</button>
-                  </div>
-                  <div style={{flex:1,minWidth:"100px"}}>
-                    {editingLabelId===f.id?<input autoFocus value={f.label} onChange={e=>setFields(fields.map(x=>x.id===f.id?{...x,label:e.target.value}:x))} onBlur={()=>setEditingLabelId(null)} onKeyDown={e=>e.key==="Enter"&&setEditingLabelId(null)} style={{...inp,width:"100%",fontSize:"12px",fontWeight:600}}/>:
-                    <div style={{display:"flex",alignItems:"center",gap:"4px",cursor:"pointer"}} onClick={()=>setEditingLabelId(f.id)}><span style={{fontSize:"12px",fontWeight:600,color:T.text}}>{f.label}</span><span style={{fontSize:"10px",color:T.textXSoft}}>✎</span>{f.required&&<span style={{fontSize:"10px",color:"#F87171",fontWeight:700}}>*</span>}</div>}
-                  </div>
-                  <select value={f.type} onChange={e=>setFields(fields.map(x=>x.id===f.id?{...x,type:e.target.value}:x))} style={{...inp,cursor:"pointer",fontSize:"11px",padding:"4px 8px"}}>{FIELD_TYPES.map(t=><option key={t.value} value={t.value}>{t.icon} {t.label}</option>)}</select>
-                  <label style={{display:"flex",alignItems:"center",gap:"3px",cursor:"pointer",fontSize:"11px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",flexShrink:0}}><input type="checkbox" checked={f.required} onChange={()=>setFields(fields.map(x=>x.id===f.id?{...x,required:!x.required}:x))} style={{cursor:"pointer"}}/> req.</label>
-                  <Toggle value={f.active} onChange={()=>setFields(fields.map(x=>x.id===f.id?{...x,active:!x.active}:x))}/>
-                  {(f.type==="select"||f.type==="multiselect")&&<button onClick={()=>setEditFieldId(editFieldId===f.id?null:f.id)} style={{padding:"3px 7px",background:editFieldId===f.id?"rgba(90,180,240,0.10)":T.bgSoft,border:`1px solid ${editFieldId===f.id?"rgba(90,180,240,0.25)":T.border}`,color:editFieldId===f.id?T.accent:T.textSoft,borderRadius:"4px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"10px",flexShrink:0}}>Opc. {editFieldId===f.id?"▲":"▼"}</button>}
-                  <button onClick={()=>setConfirmDeleteField(f)} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(248,113,113,0.3)",fontSize:"15px",padding:"1px",flexShrink:0}}>×</button>
+            <div style={{padding:"10px 12px",background:T.accentLight,border:`1px solid ${T.borderMid}`,borderRadius:"8px",display:"flex",alignItems:"center",gap:"10px"}}>
+              <span style={{background:"rgba(90,180,240,0.15)",border:`1px solid ${T.borderMid}`,borderRadius:"4px",padding:"2px 7px",fontSize:"10px",color:"#5AB4F0",flexShrink:0}}>▾</span>
+              <div style={{flex:1}}>
+                <div style={{fontSize:"13px",fontWeight:600,color:T.text}}>Categoría de la solicitud</div>
+                <div style={{fontSize:"11px",color:T.textSoft,marginTop:"2px"}}>Siempre presente. Vincula con el workflow según la opción elegida.</div>
+                <div style={{marginTop:"6px",display:"flex",gap:"5px",flexWrap:"wrap"}}>
+                  {workflowTypes.map(wt=><span key={wt.id} style={{fontSize:"10px",background:"rgba(90,180,240,0.08)",border:`1px solid ${T.borderMid}`,borderRadius:"4px",padding:"2px 8px",color:T.accent}}>{wt.categoryValue||wt.name}</span>)}
                 </div>
-                {editFieldId===f.id&&(f.type==="select"||f.type==="multiselect")&&<div style={{padding:"10px 12px",borderTop:`1px solid ${T.border}`,background:T.bgSoft}}>
-                  <div style={{display:"flex",gap:"6px",marginBottom:"8px"}}>
-                    <input value={newOpt} onChange={e=>setNewOpt(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addOpt(f.id)} placeholder="Nueva opción…" style={{flex:1,background:T.tableHead,border:`1px solid ${T.border}`,borderRadius:"5px",padding:"5px 9px",fontSize:"12px",color:T.text,fontFamily:"'Outfit',sans-serif",outline:"none"}}/>
-                    <button onClick={()=>addOpt(f.id)} style={{padding:"5px 10px",background:T.accent,border:"none",color:T.text,borderRadius:"5px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600}}>+</button>
-                  </div>
-                  <div style={{display:"flex",gap:"5px",flexWrap:"wrap"}}>
-                    {f.options.map(opt=><div key={opt} style={{display:"flex",alignItems:"center",gap:"3px",background:T.tableHead,border:`1px solid ${T.border}`,borderRadius:"4px",padding:"2px 7px"}}><span style={{fontSize:"11px",color:T.textMid}}>{opt}</span><button onClick={()=>removeOpt(f.id,opt)} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(248,113,113,0.3)",fontSize:"12px",padding:"0",lineHeight:1}}>×</button></div>)}
-                    {f.options.length===0&&<span style={{fontSize:"11px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif"}}>Sin opciones</span>}
-                  </div>
-                </div>}
-              </div>)}
+              </div>
+              <span style={{fontSize:"10px",color:"#F87171",fontWeight:600,flexShrink:0}}>req. · sistema</span>
             </div>
           </div>
         </Card>
-        <Card>
-          <SectionHeader title="Vista previa del formulario"/>
+        <Card style={{marginBottom:"14px"}}>
+          <SectionHeader title={`Subtítulo — ${selWt.name}`}/>
           <div style={{padding:"14px 16px"}}>
-            <div style={{fontSize:"1.1rem",fontWeight:600,color:T.text,fontFamily:"'Cormorant Garamond',serif",marginBottom:"3px",letterSpacing:"-0.01em"}}>Nueva Declaración</div>
-            <div style={{fontSize:"12px",color:T.textSoft,marginBottom:"12px",lineHeight:1.6}}>{formMeta.subtitle}</div>
+            <textarea value={formMeta.subtitle} onChange={e=>setFormMeta({...formMeta,subtitle:e.target.value})} rows={3} style={{width:"100%",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"7px",padding:"8px 11px",fontSize:"13px",color:T.text,fontFamily:"'Outfit',sans-serif",outline:"none",resize:"vertical",boxSizing:"border-box",lineHeight:1.65}}/>
+            <div style={{fontSize:"10px",color:T.textXSoft,marginTop:"4px"}}>{formMeta.subtitle.length} caracteres</div>
+          </div>
+        </Card>
+        <Card style={{marginBottom:"14px"}}>
+          <SectionHeader title={`Campos — ${selWt.name} (${fields.filter(f=>f.active).length} activos)`} right={<button onClick={()=>setFields([...fields,{id:`cf${Date.now()}`,label:"Nuevo campo",type:"short_text",required:false,active:true,options:[]}])} style={{padding:"4px 11px",background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,color:"#5AB4F0",borderRadius:"5px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600}}>+ Campo</button>}/>
+          <div style={{padding:"12px 14px",display:"grid",gap:"7px"}}>
+            {fields.map((f,i)=>{
+              // If thresholds enabled, the numeric value field (type=number) is locked: can't be hidden or deleted
+              const isValueField = wf.thresholdsEnabled && f.type==="number";
+              return <div key={f.id} style={{border:`1px solid ${f.active?T.border:"rgba(109,135,168,0.08)"}`,borderRadius:"9px",background:f.active?T.bgCard:T.bgSoft,opacity:f.active?1:0.6}}>
+              <div style={{display:"flex",alignItems:"center",gap:"7px",padding:"10px 12px",flexWrap:"wrap"}}>
+                <div style={{display:"flex",flexDirection:"column",gap:"2px",flexShrink:0}}>
+                  <button onClick={()=>moveField(i,-1)} disabled={i===0} style={{background:"none",border:"none",cursor:i===0?"default":"pointer",color:i===0?T.textXSoft:T.textSoft,fontSize:"8px",padding:"0",lineHeight:1}}>▲</button>
+                  <button onClick={()=>moveField(i,1)} disabled={i===fields.length-1} style={{background:"none",border:"none",cursor:i===fields.length-1?"default":"pointer",color:i===fields.length-1?T.textXSoft:T.textSoft,fontSize:"8px",padding:"0",lineHeight:1}}>▼</button>
+                </div>
+                <div style={{flex:1,minWidth:"100px"}}>
+                  {editingLabelId===f.id?<input autoFocus value={f.label} onChange={e=>setFields(fields.map(x=>x.id===f.id?{...x,label:e.target.value}:x))} onBlur={()=>setEditingLabelId(null)} onKeyDown={e=>e.key==="Enter"&&setEditingLabelId(null)} style={{...inp,width:"100%",fontSize:"12px",fontWeight:600}}/>:
+                  <div style={{display:"flex",alignItems:"center",gap:"4px",cursor:"pointer"}} onClick={()=>setEditingLabelId(f.id)}>
+                    <span style={{fontSize:"12px",fontWeight:600,color:T.text}}>{f.label}</span>
+                    <span style={{fontSize:"10px",color:T.textXSoft}}>✎</span>
+                    {f.required&&<span style={{fontSize:"10px",color:"#F87171",fontWeight:700}}>*</span>}
+                    {isValueField&&<span style={{fontSize:"9px",background:"rgba(201,168,76,0.12)",border:"1px solid rgba(201,168,76,0.30)",borderRadius:"3px",padding:"1px 5px",color:"#C9A84C",marginLeft:"4px"}}>⚖ threshold</span>}
+                  </div>}
+                </div>
+                <select value={f.type} onChange={e=>setFields(fields.map(x=>x.id===f.id?{...x,type:e.target.value}:x))} style={{...inp,cursor:"pointer",fontSize:"11px",padding:"4px 8px"}}>{FIELD_TYPES.map(t=><option key={t.value} value={t.value}>{t.icon} {t.label}</option>)}</select>
+                <label style={{display:"flex",alignItems:"center",gap:"3px",cursor:isValueField?"not-allowed":"pointer",fontSize:"11px",color:T.textSoft,flexShrink:0,opacity:isValueField?0.4:1}}>
+                  <input type="checkbox" checked={f.required} disabled={isValueField} onChange={()=>!isValueField&&setFields(fields.map(x=>x.id===f.id?{...x,required:!x.required}:x))} style={{cursor:isValueField?"not-allowed":"pointer"}}/> req.
+                </label>
+                {isValueField
+                  ? <div title="Campo obligatorio mientras los thresholds estén activos" style={{width:"36px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"10px",color:"#C9A84C",cursor:"not-allowed"}}>🔒</div>
+                  : <Toggle value={f.active} onChange={()=>setFields(fields.map(x=>x.id===f.id?{...x,active:!x.active}:x))}/>
+                }
+                {(f.type==="select"||f.type==="multiselect")&&<button onClick={()=>setEditFieldId(editFieldId===f.id?null:f.id)} style={{padding:"3px 7px",background:editFieldId===f.id?"rgba(90,180,240,0.10)":T.bgSoft,border:`1px solid ${editFieldId===f.id?"rgba(90,180,240,0.25)":T.border}`,color:editFieldId===f.id?T.accent:T.textSoft,borderRadius:"4px",cursor:"pointer",fontSize:"10px",flexShrink:0}}>Opc. {editFieldId===f.id?"▲":"▼"}</button>}
+                {isValueField
+                  ? <div title="No se puede eliminar: campo vinculado a thresholds" style={{fontSize:"15px",padding:"1px",color:"rgba(201,168,76,0.25)",cursor:"not-allowed",flexShrink:0}}>×</div>
+                  : <button onClick={()=>setConfirmDeleteField(f)} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(248,113,113,0.3)",fontSize:"15px",padding:"1px",flexShrink:0}}>×</button>
+                }
+              </div>
+              {isValueField&&<div style={{padding:"6px 12px 8px",borderTop:`1px solid rgba(201,168,76,0.15)`,background:"rgba(201,168,76,0.04)",fontSize:"10px",color:"#C9A84C",display:"flex",alignItems:"center",gap:"5px"}}>
+                <span>⚖</span> Campo vinculado a thresholds — obligatorio y visible mientras los thresholds estén activos.
+              </div>}
+              {editFieldId===f.id&&(f.type==="select"||f.type==="multiselect")&&<div style={{padding:"10px 12px",borderTop:`1px solid ${T.border}`,background:T.bgSoft}}>
+                <div style={{display:"flex",gap:"6px",marginBottom:"8px"}}>
+                  <input value={newOpt} onChange={e=>setNewOpt(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addOpt(f.id)} placeholder="Nueva opción…" style={{flex:1,background:T.tableHead,border:`1px solid ${T.border}`,borderRadius:"5px",padding:"5px 9px",fontSize:"12px",color:T.text,fontFamily:"'Outfit',sans-serif",outline:"none"}}/>
+                  <button onClick={()=>addOpt(f.id)} style={{padding:"5px 10px",background:T.accent,border:"none",color:T.text,borderRadius:"5px",cursor:"pointer",fontSize:"11px",fontWeight:600}}>+</button>
+                </div>
+                <div style={{display:"flex",gap:"5px",flexWrap:"wrap"}}>
+                  {f.options.map(opt=><div key={opt} style={{display:"flex",alignItems:"center",gap:"3px",background:T.tableHead,border:`1px solid ${T.border}`,borderRadius:"4px",padding:"2px 7px"}}><span style={{fontSize:"11px",color:T.textMid}}>{opt}</span><button onClick={()=>removeOpt(f.id,opt)} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(248,113,113,0.3)",fontSize:"12px",padding:"0",lineHeight:1}}>×</button></div>)}
+                  {f.options.length===0&&<span style={{fontSize:"11px",color:T.textXSoft}}>Sin opciones.</span>}
+                </div>
+              </div>}
+            </div>;})}
+            {fields.length===0&&<div style={{textAlign:"center",padding:"20px",color:T.textXSoft,fontSize:"12px"}}>Sin campos. Pulsa "+ Campo" para añadir.</div>}
+          </div>
+        </Card>
+        <Card>
+          <SectionHeader title={`Vista previa — ${selWt.name}`}/>
+          <div style={{padding:"14px 16px"}}>
+            <div style={{fontSize:"1.1rem",fontWeight:600,color:T.text,fontFamily:"'Cormorant Garamond',serif",marginBottom:"3px"}}>Nueva Declaración</div>
+            <div style={{fontSize:"12px",color:T.textSoft,marginBottom:"12px",lineHeight:1.6}}>{formMeta.subtitle||"(sin subtítulo)"}</div>
             <div style={{display:"grid",gap:"7px"}}>
-              {fields.filter(f=>f.active).map(f=>{const td=FIELD_TYPES.find(t=>t.value===f.type)||FIELD_TYPES[0];return <div key={f.id} style={{display:"flex",alignItems:"center",gap:"8px",padding:"7px 10px",background:T.accentLight,borderRadius:"6px",border:`1px solid ${T.border}`}}><span style={{background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,borderRadius:"3px",padding:"1px 5px",fontSize:"10px",color:"#5AB4F0",fontFamily:"'Outfit',sans-serif",flexShrink:0}}>{td.icon}</span><span style={{fontSize:"12px",fontWeight:600,color:T.text,flex:1}}>{f.label}</span>{f.required&&<span style={{fontSize:"10px",color:"#F87171",fontFamily:"'Outfit',sans-serif"}}>req.</span>}<span style={{fontSize:"10px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif"}}>{td.label}</span></div>;})}
+              <div style={{display:"flex",alignItems:"center",gap:"8px",padding:"7px 10px",background:"rgba(90,180,240,0.06)",borderRadius:"6px",border:`1px solid ${T.borderMid}`}}>
+                <span style={{background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,borderRadius:"3px",padding:"1px 5px",fontSize:"10px",color:"#5AB4F0",flexShrink:0}}>▾</span>
+                <span style={{fontSize:"12px",fontWeight:600,color:T.text,flex:1}}>Categoría de la solicitud</span>
+                <span style={{fontSize:"10px",color:"#F87171"}}>req. · compartido</span>
+              </div>
+              {fields.filter(f=>f.active).map(f=>{const td=FIELD_TYPES.find(t=>t.value===f.type)||FIELD_TYPES[0];return <div key={f.id} style={{display:"flex",alignItems:"center",gap:"8px",padding:"7px 10px",background:T.accentLight,borderRadius:"6px",border:`1px solid ${T.border}`}}><span style={{background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,borderRadius:"3px",padding:"1px 5px",fontSize:"10px",color:"#5AB4F0",flexShrink:0}}>{td.icon}</span><span style={{fontSize:"12px",fontWeight:600,color:T.text,flex:1}}>{f.label}</span>{f.required&&<span style={{fontSize:"10px",color:"#F87171"}}>req.</span>}<span style={{fontSize:"10px",color:T.textXSoft}}>{td.label}</span></div>;})}
             </div>
           </div>
         </Card>
       </div>}
+      {tab==="form"&&!selWt&&<div style={{textAlign:"center",padding:"40px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif",fontSize:"13px",background:T.bgCard,borderRadius:"12px",border:`1px solid ${T.border}`}}>Sin workflows. Ve a la pestaña Workflow para crear el primero.</div>}
     </div>}
   </div>;
 }
+
 
 // ══════════════════════════════════════════════════════════════════
 // ROLE SWITCHER
@@ -1366,7 +1487,7 @@ function LoginPage({onLogin}) {
     setError("");
     if(!email||!password){setError("Por favor, introduce tu email y contraseña.");return;}
     const user = ALL_USERS_INIT.find(u=>u.email.toLowerCase()===email.trim().toLowerCase());
-    if(!user){setError("Email no encontrado. Usa el formato nombre@conflictguard.com");return;}
+    if(!user){setError("Email no encontrado. Usa el formato nombre@disclosureguard.com");return;}
     if(password!==VALID_PASSWORD){setError("Contraseña incorrecta.");return;}
     setLoading(true);
     setTimeout(()=>{setLoading(false);onLogin(user);},600);
@@ -1405,7 +1526,7 @@ function LoginPage({onLogin}) {
             value={email}
             onChange={e=>{setEmail(e.target.value);setError("");}}
             onKeyDown={handleKey}
-            placeholder="nombre@conflictguard.com"
+            placeholder="nombre@disclosureguard.com"
             style={{width:"100%",padding:"11px 14px",background:"rgba(240,244,250,0.8)",border:`1.5px solid ${error&&!email?"rgba(220,38,38,0.4)":"rgba(24,83,168,0.15)"}`,borderRadius:"9px",fontSize:"0.875rem",color:"#0D1E35",fontFamily:"'Outfit',sans-serif",outline:"none",transition:"border-color 0.15s"}}
             onFocus={e=>e.target.style.borderColor="rgba(24,83,168,0.45)"}
             onBlur={e=>e.target.style.borderColor="rgba(24,83,168,0.15)"}
@@ -1511,7 +1632,8 @@ export default function App() {
     setDeclarations(prev=>{const e=prev.find(x=>x.id===d.id);return e?prev.map(x=>x.id===d.id?d:x):[...prev,d];});
     if(mode==="send"){
       const mktCfg=markets.find(m=>m.name===d.market)||markets[0];
-      const wf=mktCfg.workflow;
+      const activeWt=getWorkflowTypeByCategory(mktCfg,d.type)||(mktCfg?.workflowTypes||[])[0];
+      const wf=activeWt?.workflow||{};
       let sentTo="";
       if(wf.requireManagerReview){const mgr=users.find(u=>u.name===currentUser.manager);sentTo=mgr?` → ${mgr.name}`:"";} 
       else if(wf.requireComplianceReview){const comp=users.find(u=>u.role==="Compliance Manager"&&u.active);sentTo=comp?` → ${comp.name}`:"";}
