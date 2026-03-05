@@ -347,7 +347,7 @@ function Sidebar({active,onNav,currentUser,isOpen,onClose,isMobile,companyName,m
         <Logo size={36}/>
         <div>
           <div style={{fontSize:"1.12rem",fontWeight:700,color:T.text,fontFamily:"'Cormorant Garamond',serif",letterSpacing:"0.03em",lineHeight:1}}>
-            Conflict<span style={{color:logoAccent}}>Guard</span>
+            Disclosure<span style={{color:logoAccent}}>Guard</span>
           </div>
           <div style={{fontSize:"0.57rem",color:T.textSoft,letterSpacing:"0.22em",textTransform:"uppercase",fontFamily:"'Outfit',sans-serif",fontWeight:400,marginTop:"2px"}}>by BlueGuard</div>
         </div>
@@ -407,7 +407,7 @@ function TopBar({onMenuOpen,currentUser,companyName}) {
     <div style={{display:"flex",alignItems:"center",gap:"9px",flex:1}}>
       <Logo size={26}/>
       <div>
-        <div style={{fontSize:"1.05rem",fontWeight:700,color:T.text,fontFamily:"'Cormorant Garamond',serif",letterSpacing:"0.03em",lineHeight:1}}>Conflict<span style={{color:isDark?"#5AB4F0":"#1853A8"}}>Guard</span></div>
+        <div style={{fontSize:"1.05rem",fontWeight:700,color:T.text,fontFamily:"'Cormorant Garamond',serif",letterSpacing:"0.03em",lineHeight:1}}>Disclosure<span style={{color:isDark?"#5AB4F0":"#1853A8"}}>Guard</span></div>
         {companyName&&<div style={{fontSize:"0.6rem",color:T.textSoft,fontFamily:"'Outfit',sans-serif",letterSpacing:"0.1em",textTransform:"uppercase"}}>{companyName}</div>}
       </div>
     </div>
@@ -1506,7 +1506,7 @@ function LoginPage({onLogin}) {
           <Logo size={36}/>
         </div>
         <div style={{fontSize:"2rem",fontWeight:700,color:"#0D1E35",fontFamily:"'Cormorant Garamond',serif",letterSpacing:"0.02em",lineHeight:1}}>
-          Conflict<span style={{color:"#1853A8"}}>Guard</span>
+          Disclosure<span style={{color:"#1853A8"}}>Guard</span>
         </div>
         <div style={{fontSize:"0.62rem",color:"#4A6480",letterSpacing:"0.22em",textTransform:"uppercase",fontFamily:"'Outfit',sans-serif",fontWeight:400,marginTop:"4px"}}>by BlueGuard Solutions</div>
       </div>
