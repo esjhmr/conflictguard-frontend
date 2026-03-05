@@ -80,6 +80,8 @@ const STATUS_CFG = {
   "En revisión compliance": {darkColor:"#A8D8F8", darkBg:"rgba(33,105,204,0.15)", darkBorder:"rgba(90,180,240,0.30)", lightColor:"#2169CC", lightBg:"rgba(33,105,204,0.08)", lightBorder:"rgba(33,105,204,0.25)", icon:"◑"},
   "Escalado":               {darkColor:"#F87171", darkBg:"rgba(220,38,38,0.12)", darkBorder:"rgba(248,113,113,0.28)", lightColor:"#DC2626", lightBg:"rgba(220,38,38,0.06)", lightBorder:"rgba(220,38,38,0.22)", icon:"⚠"},
   "Completado":             {darkColor:"#4ADE80", darkBg:"rgba(74,222,128,0.10)", darkBorder:"rgba(74,222,128,0.28)", lightColor:"#16A34A", lightBg:"rgba(22,163,74,0.07)", lightBorder:"rgba(22,163,74,0.22)", icon:"✓"},
+  "Aprobado":               {darkColor:"#4ADE80", darkBg:"rgba(74,222,128,0.10)", darkBorder:"rgba(74,222,128,0.28)", lightColor:"#16A34A", lightBg:"rgba(22,163,74,0.07)", lightBorder:"rgba(22,163,74,0.22)", icon:"✓"},
+  "Rechazado":              {darkColor:"#F87171", darkBg:"rgba(220,38,38,0.12)", darkBorder:"rgba(248,113,113,0.28)", lightColor:"#DC2626", lightBg:"rgba(220,38,38,0.06)", lightBorder:"rgba(220,38,38,0.22)", icon:"✕"},
 };
 const getStatusCfg = (status) => {
   const c = STATUS_CFG[status] || STATUS_CFG["Draft"];
@@ -91,7 +93,7 @@ const ROLE_CFG = {
   "Empleado":              {darkColor:"#5AB4F0", darkBg:"rgba(90,180,240,0.10)", darkBorder:"rgba(90,180,240,0.22)", lightColor:"#1853A8", lightBg:"rgba(24,83,168,0.08)", lightBorder:"rgba(24,83,168,0.20)"},
   "Manager":               {darkColor:"#A8D8F8", darkBg:"rgba(33,105,204,0.15)", darkBorder:"rgba(90,180,240,0.28)", lightColor:"#2169CC", lightBg:"rgba(33,105,204,0.08)", lightBorder:"rgba(33,105,204,0.20)"},
   "Compliance Manager":    {darkColor:"#4ADE80", darkBg:"rgba(74,222,128,0.08)", darkBorder:"rgba(74,222,128,0.22)", lightColor:"#16A34A", lightBg:"rgba(22,163,74,0.07)", lightBorder:"rgba(22,163,74,0.20)"},
-  "Head de Legal":         {darkColor:"#C9A84C", darkBg:"rgba(201,168,76,0.10)", darkBorder:"rgba(201,168,76,0.28)", lightColor:"#9A6F1A", lightBg:"rgba(154,111,26,0.07)", lightBorder:"rgba(154,111,26,0.22)"},
+  "Chief Compliance Officer":         {darkColor:"#C9A84C", darkBg:"rgba(201,168,76,0.10)", darkBorder:"rgba(201,168,76,0.28)", lightColor:"#9A6F1A", lightBg:"rgba(154,111,26,0.07)", lightBorder:"rgba(154,111,26,0.22)"},
   "Administrador Empresa": {darkColor:"#F87171", darkBg:"rgba(220,38,38,0.10)", darkBorder:"rgba(248,113,113,0.22)", lightColor:"#DC2626", lightBg:"rgba(220,38,38,0.07)", lightBorder:"rgba(220,38,38,0.20)"},
 };
 const getRoleCfg = (role) => {
@@ -106,14 +108,14 @@ const ROLE_NAV = {
   "Empleado":              ["new","declarations"],
   "Manager":               ["dashboard","new","declarations"],
   "Compliance Manager":    ["dashboard","new","declarations","audit"],
-  "Head de Legal":         ["dashboard","declarations"],
-  "Administrador Empresa": ["declarations","audit","admin"],
+  "Chief Compliance Officer":         ["dashboard","new","declarations"],
+  "Administrador Empresa": ["new","declarations","audit","admin"],
 };
 
 const NAV_ITEMS = [
-  {id:"dashboard",    icon:"⬡", label:"Dashboard",         roles:["Manager","Compliance Manager","Head de Legal"]},
-  {id:"new",          icon:"+", label:"Nueva Declaración", roles:["Empleado","Manager","Compliance Manager"]},
-  {id:"declarations", icon:"◈", label:"Declaraciones",     roles:["Empleado","Manager","Compliance Manager","Head de Legal","Administrador Empresa"]},
+  {id:"dashboard",    icon:"⬡", label:"Dashboard",         roles:["Manager","Compliance Manager","Chief Compliance Officer"]},
+  {id:"new",          icon:"+", label:"Nueva Declaración", roles:["Empleado","Manager","Compliance Manager","Chief Compliance Officer","Administrador Empresa"]},
+  {id:"declarations", icon:"◈", label:"Declaraciones",     roles:["Empleado","Manager","Compliance Manager","Chief Compliance Officer","Administrador Empresa"]},
   {id:"audit",        icon:"⊞", label:"Auditoría",         roles:["Compliance Manager","Administrador Empresa"]},
   {id:"admin",        icon:"⚙", label:"Administración",    roles:["Administrador Empresa"]},
 ];
@@ -140,7 +142,7 @@ const ALL_USERS_INIT = [
   {id:6,  name:"Sunil",         lastName:"", email:"sunil@disclosureguard.com",         role:"Manager",               manager:"Vinoth",dept:"Marketing",    market:"Iberia", active:true},
   {id:7,  name:"Vinoth",        lastName:"", email:"vinoth@disclosureguard.com",        role:"Manager",               manager:null,    dept:"Operaciones",  market:"Iberia", active:true},
   {id:8,  name:"James",         lastName:"", email:"james@disclosureguard.com",         role:"Compliance Manager",    manager:null,    dept:"Cumplimiento", market:"Iberia", active:true},
-  {id:9,  name:"Jackie",        lastName:"", email:"jackie@disclosureguard.com",        role:"Head de Legal",         manager:null,    dept:"Legal",        market:"Iberia", active:true},
+  {id:9,  name:"Jackie",        lastName:"", email:"jackie@disclosureguard.com",        role:"Chief Compliance Officer",         manager:null,    dept:"Legal",        market:"Iberia", active:true},
   {id:10, name:"Administrador", lastName:"", email:"admin@disclosureguard.com",         role:"Administrador Empresa", manager:null,    dept:"Admin",        market:"Iberia", active:true},
 ];
 
@@ -567,8 +569,8 @@ function DeclarationsList({declarations,currentUser,allUsers,onView,isMobile,vie
       return comp?comp.name:"Compliance";
     }
     if(d.status==="Escalado"){
-      const legal=allUsers.find(u=>u.role==="Head de Legal"&&u.active);
-      return legal?legal.name:"Head de Legal";
+      const legal=allUsers.find(u=>u.role==="Chief Compliance Officer"&&u.active);
+      return legal?legal.name:"Chief Compliance Officer";
     }
     return "—";
   };
@@ -633,7 +635,12 @@ function DeclarationsList({declarations,currentUser,allUsers,onView,isMobile,vie
 function NewDeclarationForm({currentUser,markets,onSubmit,isMobile}) {
   const mktCfg = getMarketConfig(markets, currentUser.market);
   const allWorkflowTypes = mktCfg?.workflowTypes || [];
-  const [vals,setVals]=useState({});
+  const activeWorkflowTypes = allWorkflowTypes.filter(wt => !wt.hidden);
+  const [vals,setVals]=useState(()=>{
+    // Auto-select if only one active workflow
+    if(activeWorkflowTypes.length===1) return {__cat: activeWorkflowTypes[0].categoryValue};
+    return {};
+  });
   const [done,setDone]=useState(false);
   const [showConfirm,setShowConfirm]=useState(false);
   const [lastMode,setLastMode]=useState("draft");
@@ -643,7 +650,8 @@ function NewDeclarationForm({currentUser,markets,onSubmit,isMobile}) {
   const activeWt = allWorkflowTypes.find(wt=>wt.categoryValue===selectedCategory)||null;
   const workflow = activeWt?.workflow||{};
   const dynamicFields = (activeWt?.fields||[]).filter(f=>f.active);
-  const formMeta = activeWt?.formMeta||{subtitle:"Selecciona una categoría para mostrar el formulario."};
+  const singleActive = activeWorkflowTypes.length===1;
+  const formMeta = activeWt?.formMeta||(singleActive?{subtitle:""}:{subtitle:"Selecciona una categoría para mostrar el formulario."});
 
   const validate=()=>{
     if(!selectedCategory){alert("Selecciona una categoría de solicitud.");return false;}
@@ -667,7 +675,24 @@ function NewDeclarationForm({currentUser,markets,onSubmit,isMobile}) {
     const mktCfgNow=getMarketConfig(markets,currentUser.market);
     const wtNow=(mktCfgNow?.workflowTypes||[]).find(wt=>wt.categoryValue===selectedCategory);
     const wfNow=wtNow?.workflow||workflow;
-    onSubmit(buildDecl(getInitialReviewStatus(wfNow)),"send");
+    let finalStatus=getInitialReviewStatus(wfNow);
+
+    // Apply threshold logic if enabled
+    if(wfNow.thresholdsEnabled){
+      // Find the numeric (value) field
+      const valueField=(wtNow?.fields||[]).find(f=>f.type==="number"&&f.active);
+      const rawVal=valueField?Number(vals[valueField.id]):null;
+      if(rawVal!=null&&!isNaN(rawVal)){
+        if(rawVal<(wfNow.thresholdAutoApprove??50)){
+          // Auto-approve: "Completado" if autoClose enabled, otherwise a neutral approved state
+          finalStatus=wfNow.autoClose?"Completado":"Aprobado";
+        } else if(rawVal>(wfNow.thresholdSkipToCompliance??150)&&wfNow.requireComplianceReview){
+          finalStatus="En revisión compliance"; // skip manager, go straight to compliance
+        }
+      }
+    }
+
+    onSubmit(buildDecl(finalStatus),"send");
     setLastMode("send");setShowConfirm(false);setDone(true);
   };
 
@@ -702,16 +727,16 @@ function NewDeclarationForm({currentUser,markets,onSubmit,isMobile}) {
       <h1 style={{fontSize:isMobile?"1.5rem":"2rem",fontWeight:600,color:T.text,fontFamily:"'Cormorant Garamond',serif",margin:0,letterSpacing:"-0.01em"}}>Nueva Declaración</h1>
       <p style={{color:T.textSoft,fontSize:"13px",margin:"6px 0 0",lineHeight:1.65}}>{formMeta.subtitle}</p>
     </div>
-    <div style={{background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,borderRadius:"9px",padding:"10px 14px",marginBottom:"20px",fontSize:"12px",color:"#5AB4F0"}}><b>ℹ Recuerda:</b> Declarar un conflicto es un acto de transparencia y no implica sanción.</div>
+    <div style={{background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,borderRadius:"9px",padding:"10px 14px",marginBottom:"20px",fontSize:"12px",color:"#5AB4F0"}}><b>ℹ Recuerda:</b> Declarar algo es un acto de transparencia y no implica sanción.</div>
     <div style={{display:"grid",gap:"13px"}}>
-      {/* Shared category field — always first */}
-      <div>
+      {/* Shared category field — hidden if only one active workflow */}
+      {!singleActive&&<div>
         <label style={{display:"block",fontSize:"0.62rem",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"5px",letterSpacing:"0.12em",textTransform:"uppercase",fontWeight:400}}>Categoría de la solicitud <span style={{color:"#F87171"}}>*</span></label>
         <select value={vals["__cat"]||""} onChange={e=>setVals({__cat:e.target.value})} style={{...inp,cursor:"pointer"}}>
           <option value="">Selecciona una categoría…</option>
-          {allWorkflowTypes.map(wt=><option key={wt.id} value={wt.categoryValue}>{wt.categoryValue}</option>)}
+          {allWorkflowTypes.map(wt=><option key={wt.id} value={wt.hidden?"":wt.categoryValue} disabled={!!wt.hidden} style={{color:wt.hidden?"#aaa":"inherit"}}>{wt.hidden?`${wt.categoryValue} (no disponible)`:wt.categoryValue}</option>)}
         </select>
-      </div>
+      </div>}
       {/* Dynamic fields for selected category */}
       {selectedCategory && dynamicFields.map(f=>(
         <div key={f.id}>
@@ -751,44 +776,76 @@ function DeclarationDetail({declaration,currentUser,markets,allUsers,onBack,onUp
   const formFields = (activeWt?.fields||[]).filter(f=>f.active);
   const workflow = activeWt?.workflow || {};
 
-  const isAdmin    = currentUser.role==="Administrador Empresa";
-  const isEmployee = d.userId===currentUser.id;
-  const isManager  = currentUser.role==="Manager";
-  const isCompliance=currentUser.role==="Compliance Manager";
-  const isHeadLegal= currentUser.role==="Head de Legal";
+  // Detect declaration category
+  const isGift     = d.type==="Regalos y beneficios" || (activeWt?.id==="regalos");
+  const isConflict = !isGift;
 
-  // Manager cannot review their own declarations
-  const isManagerOwnDecl = isManager && d.userId===currentUser.id;
+  const isAdmin      = currentUser.role==="Administrador Empresa";
+  const isEmployee   = currentUser.role==="Empleado" || currentUser.role==="Compliance Manager" || currentUser.role==="Chief Compliance Officer" || isAdmin; // All roles can create as employee
+  const isOwnDecl    = d.userId===currentUser.id;
+  const isManager    = currentUser.role==="Manager";
+  const isCompliance = currentUser.role==="Compliance Manager";
+  const isHeadLegal  = currentUser.role==="Chief Compliance Officer";
 
-  const canResubmit  = isEmployee && d.status==="Info solicitada";
-  const canSubmitDraft=isEmployee && d.status==="Draft";
-  const canCompleteConflictMgr = isManager && !isManagerOwnDecl && d.status==="En revisión manager";
-  const canPassCompliance=isManager && !isManagerOwnDecl && d.status==="En revisión manager" && workflow.requireComplianceReview;
-  const canCompleteCompliance=isCompliance && d.status==="En revisión compliance";
-  const canCompleteMgr=isManager && !isManagerOwnDecl && d.status==="En revisión manager" && !workflow.requireComplianceReview;
-  const canCompleteLegal=isHeadLegal && d.status==="Escalado";
-  const canEscalateManager = workflow.allowEscalation && !workflow.allowEscalationByComplianceOnly && isManager && !isManagerOwnDecl && d.status==="En revisión manager";
-  const canEscalateCompliance = workflow.allowEscalation && isCompliance && d.status==="En revisión compliance";
-  const canEscalate = canEscalateManager || canEscalateCompliance;
-  const canRequestInfo=(isManager&&!isManagerOwnDecl&&d.status==="En revisión manager")||(isCompliance&&d.status==="En revisión compliance");
-  const hasActions   = !isAdmin&&(canSubmitDraft||canResubmit||canCompleteConflictMgr||canPassCompliance||canCompleteCompliance||canCompleteMgr||canCompleteLegal||canEscalate||canRequestInfo);
+  const isManagerOwnDecl = isManager && isOwnDecl;
 
-  // View mode: for pending approval, employee sees read-only; for Info solicitada, employee can edit + comment
+  // Employee / Compliance-as-employee actions
+  const canResubmit   = isOwnDecl && d.status==="Info solicitada";
+  const canSubmitDraft= isOwnDecl && d.status==="Draft";
+
+  // Manager actions (on others' declarations, at manager review stage)
+  const atManagerReview = d.status==="En revisión manager";
+  const atComplianceReview = d.status==="En revisión compliance";
+  const atEscalated = d.status==="Escalado";
+
+  const canManagerAct = isManager && !isManagerOwnDecl && atManagerReview;
+  // Manager can send to compliance only if: workflow requires compliance review AND manager review is enabled
+  const canPassCompliance  = canManagerAct && workflow.requireComplianceReview && workflow.requireManagerReview;
+  // Manager: conflict → complete with form; gift → approve or reject
+  const managerNeedsForm   = canManagerAct && isConflict;
+  const managerGiftApprove = canManagerAct && isGift;
+  const canRequestInfoMgr  = canManagerAct;
+
+  // Compliance actions
+  const canComplianceAct = isCompliance && !isOwnDecl && atComplianceReview;
+  // Compliance on conflict → approve (simple confirm); on gift → approve/reject/escalate
+  const complianceGiftActions = canComplianceAct && isGift;
+  const complianceConflictApprove = canComplianceAct && isConflict;
+  const canRequestInfoCompliance = canComplianceAct;
+  // Compliance can escalate if allowEscalation is on (regardless of allowEscalationByComplianceOnly)
+  const canEscalateCompliance = workflow.allowEscalation && canComplianceAct;
+
+  // Manager can escalate only if allowEscalation AND NOT allowEscalationByComplianceOnly
+  const canEscalateManager = workflow.allowEscalation && !workflow.allowEscalationByComplianceOnly && canManagerAct;
+
+  // Head of Legal actions (escalated declarations)
+  const canLegalAct = isHeadLegal && atEscalated;
+  const legalNeedsForm = canLegalAct && isConflict; // conflict → form; gift → approve/reject
+  const legalGiftActions = canLegalAct && isGift;
+
+  const hasActions = !isAdmin && (canSubmitDraft||canResubmit||canManagerAct||canComplianceAct||canLegalAct);
+
   const isInfoMode = canResubmit;
-  const isViewMode = !isInfoMode && !canSubmitDraft;
 
   const act=(newStatus,comment,ctype="action",extraFormVals,completionData,recipient)=>{
     const nc=comment?{author:fullName(currentUser),text:comment,date:new Date().toISOString(),type:ctype,recipient:recipient||null,completionData:completionData||null}:null;
     const upd={...d,status:newStatus,updatedAt:new Date().toISOString(),
       formValues:extraFormVals||d.formValues,
       comments:nc?[...d.comments,nc]:d.comments};
-    setD(upd);onUpdate(upd,recipient);setShowInfoBox(false);setInfoText("");setConfirmAction(null);setEmployeeComment("");setShowCompleteForm(false);setCompleteFormData({q1:"",q2:"",q3:"",agreed:""});
+    setD(upd);onUpdate(upd,recipient);
+    setShowInfoBox(false);setInfoText("");setConfirmAction(null);
+    setEmployeeComment("");setShowCompleteForm(false);setCompleteFormData({q1:"",q2:"",q3:"",agreed:""});
   };
 
   const handleResubmit=()=>{
     if(!employeeComment.trim()){alert("Debes añadir un comentario antes de reenviar.");return;}
-    const initStatus=getInitialReviewStatus(workflow);
-    act(initStatus,employeeComment,"resubmit",editFormVals,null,null);
+    act(getInitialReviewStatus(workflow),employeeComment,"resubmit",editFormVals,null,null);
+  };
+
+  const handleCompleteConflict=()=>{
+    if(!completeFormData.agreed.trim()){alert("El campo 'Lo acordado' es obligatorio.");return;}
+    const summary=`Revisión completada por ${fullName(currentUser)}.\n\n¿Conflicto real?: ${completeFormData.q1||"—"}\nMedidas: ${completeFormData.q2||"—"}\nSeguimiento: ${completeFormData.q3||"—"}\n\nAcordado: ${completeFormData.agreed}`;
+    act("Completado",summary,"completed",null,completeFormData,null);
   };
 
   const cfg=STATUS_CFG[d.status];
@@ -803,14 +860,45 @@ function DeclarationDetail({declaration,currentUser,markets,allUsers,onBack,onUp
   const cTs={
     review:      {bg:"rgba(167,139,250,0.08)",border:"rgba(167,139,250,0.3)",tc:"#1853A8",badge:"Revisión"},
     completed:   {bg:"rgba(52,211,153,0.08)",border:"rgba(52,211,153,0.3)",tc:"#34D399",badge:"Completado"},
+    rejected:    {bg:"rgba(220,38,38,0.08)",border:"rgba(248,113,113,0.3)",tc:"#F87171",badge:"Rechazado"},
     escalation:  {bg:"rgba(248,113,113,0.08)",border:"rgba(248,113,113,0.3)",tc:"#F87171",badge:"Escalado"},
     info_request:{bg:T.accentLight,border:T.borderMid,tc:"#5AB4F0",badge:"Info solicitada"},
     resubmit:    {bg:T.accentLight,border:T.border,tc:"#2169CC",badge:"Reenvío"},
     submitted:   {bg:T.accentLight,border:T.border,tc:"#2169CC",badge:"Enviado"},
-    action:      {bg:T.bgSoft,  border:T.border,  tc:T.textSoft,badge:"Acción"},
+    action:      {bg:T.bgSoft,border:T.border,tc:T.textSoft,badge:"Acción"},
   };
 
+  // Shared editable input style — white bg so it looks active
+  const inpEdit={width:"100%",background:T.mode==="dark"?"rgba(255,255,255,0.07)":"#fff",border:`1px solid ${T.borderMid}`,borderRadius:"8px",padding:"9px 12px",color:T.text,fontSize:"0.88rem",fontFamily:"'Outfit',sans-serif",outline:"none",boxSizing:"border-box"};
   const inp={width:"100%",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"8px",padding:"9px 12px",color:T.text,fontSize:"0.88rem",fontFamily:"'Outfit',sans-serif",outline:"none",boxSizing:"border-box"};
+
+  const legalUser=allUsers.find(u=>u.role==="Chief Compliance Officer"&&u.active);
+  const legalName=legalUser?legalUser.name:"Chief Compliance Officer";
+  const compUser=allUsers.find(u=>u.role==="Compliance Manager"&&u.active);
+  const compName=compUser?compUser.name:"Compliance";
+
+  // Renders the conflict-completion form inline (below actions)
+  const ConflictForm=()=><div style={{marginTop:"12px",background:"rgba(52,211,153,0.05)",border:"1px solid rgba(74,222,128,0.25)",borderRadius:"10px",padding:"14px"}}>
+    <div style={{fontSize:"12px",fontWeight:700,color:"#34D399",fontFamily:"'Outfit',sans-serif",marginBottom:"10px"}}>✓ Completar revisión de conflicto</div>
+    {[
+      {key:"q1",label:"¿Se confirma un conflicto de interés real?",ph:"Sí / No / Parcialmente…"},
+      {key:"q2",label:"¿Se han tomado medidas para mitigar el conflicto?",ph:"Describe las medidas adoptadas…"},
+      {key:"q3",label:"¿Se requiere seguimiento adicional?",ph:"Indica si procede y con qué periodicidad…"},
+    ].map(({key,label,ph})=>(
+      <div key={key} style={{marginBottom:"10px"}}>
+        <label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>{label}</label>
+        <textarea value={completeFormData[key]} onChange={e=>setCompleteFormData({...completeFormData,[key]:e.target.value})} rows={2} placeholder={ph} style={{width:"100%",background:T.mode==="dark"?"rgba(255,255,255,0.07)":"#fff",border:"1px solid rgba(74,222,128,0.25)",borderRadius:"7px",padding:"7px 10px",fontSize:"12px",color:T.text,fontFamily:"'Outfit',sans-serif",outline:"none",resize:"vertical",boxSizing:"border-box",lineHeight:1.6}}/>
+      </div>
+    ))}
+    <div style={{marginBottom:"10px"}}>
+      <label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Lo acordado con el empleado *</label>
+      <textarea value={completeFormData.agreed} onChange={e=>setCompleteFormData({...completeFormData,agreed:e.target.value})} rows={3} placeholder="Describe el acuerdo alcanzado y las condiciones establecidas…" style={{width:"100%",background:T.mode==="dark"?"rgba(255,255,255,0.07)":"#fff",border:"1px solid rgba(74,222,128,0.25)",borderRadius:"7px",padding:"7px 10px",fontSize:"12px",color:T.text,fontFamily:"'Outfit',sans-serif",outline:"none",resize:"vertical",boxSizing:"border-box",lineHeight:1.6}}/>
+    </div>
+    <div style={{display:"flex",gap:"8px",justifyContent:"flex-end"}}>
+      <button onClick={()=>{setShowCompleteForm(false);setCompleteFormData({q1:"",q2:"",q3:"",agreed:""}); }} style={{padding:"6px 13px",background:T.bgSoft,border:`1px solid ${T.border}`,color:T.textSoft,borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px"}}>Cancelar</button>
+      <button onClick={handleCompleteConflict} style={{padding:"7px 16px",background:"linear-gradient(135deg,#1853A8,#2169CC)",border:"none",color:"#fff",borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600,boxShadow:"0 4px 12px rgba(21,83,168,0.35)"}}>✓ Confirmar y completar</button>
+    </div>
+  </div>;
 
   return <div>
     {confirmAction&&<ConfirmModal title={`Confirmar: ${confirmAction.label}`} body={confirmAction.body} confirmLabel={confirmAction.label} confirmColor={confirmAction.confirmColor||"#2169CC"}
@@ -818,7 +906,7 @@ function DeclarationDetail({declaration,currentUser,markets,allUsers,onBack,onUp
       onCancel={()=>setConfirmAction(null)}/>}
 
     <button onClick={onBack} style={{background:"none",border:"none",color:"#5AB4F0",cursor:"pointer",fontSize:"0.82rem",marginBottom:"18px",fontFamily:"'Outfit',sans-serif",padding:0,letterSpacing:"0.02em",display:"flex",alignItems:"center",gap:"6px"}}>← Volver a declaraciones</button>
-    <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 280px",gap:"12px",alignItems:"start"}}>
+    <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 300px",gap:"12px",alignItems:"start"}}>
       <div>
         {/* Main declaration card */}
         <Card style={{marginBottom:"12px",borderLeft:`4px solid ${cfg?.color||T.accent}`}}>
@@ -836,16 +924,15 @@ function DeclarationDetail({declaration,currentUser,markets,allUsers,onBack,onUp
             <div style={{display:"grid",gap:"10px"}}>
               {formFields.map(f=>{
                 const val=isInfoMode?editFormVals[f.id]:d.formValues?.[f.id];
-                const ft=FIELD_TYPES.find(t=>t.value===f.type)||FIELD_TYPES[0];
                 if(!val&&!isInfoMode) return null;
                 return <div key={f.id} style={{background:T.accentLight,borderRadius:"8px",padding:"11px 13px",border:`1px solid ${T.border}`}}>
                   <div style={{fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"5px",textTransform:"uppercase",letterSpacing:"0.05em"}}>{f.label}{f.required&&<span style={{color:"#F87171",marginLeft:"2px"}}>*</span>}</div>
                   {isInfoMode?(
                     f.type==="textarea"
-                      ?<textarea value={editFormVals[f.id]||""} onChange={e=>setEditFormVals({...editFormVals,[f.id]:e.target.value})} rows={4} style={{...inp,padding:"7px 10px",fontSize:"12px",resize:"vertical",lineHeight:1.7,background:T.tableHead}}/>
+                      ?<textarea value={editFormVals[f.id]||""} onChange={e=>setEditFormVals({...editFormVals,[f.id]:e.target.value})} rows={4} style={{...inpEdit,padding:"7px 10px",fontSize:"12px",resize:"vertical",lineHeight:1.7}}/>
                       :f.type==="select"
-                      ?<select value={editFormVals[f.id]||""} onChange={e=>setEditFormVals({...editFormVals,[f.id]:e.target.value})} style={{...inp,padding:"7px 10px",fontSize:"12px",background:T.tableHead,cursor:"pointer"}}><option value="">Selecciona…</option>{f.options.map(o=><option key={o} value={o}>{o}</option>)}</select>
-                      :<input type={f.type==="number"?"number":f.type==="date"?"date":"text"} value={editFormVals[f.id]||""} onChange={e=>setEditFormVals({...editFormVals,[f.id]:e.target.value})} style={{...inp,padding:"7px 10px",fontSize:"12px",background:T.tableHead}}/>
+                      ?<select value={editFormVals[f.id]||""} onChange={e=>setEditFormVals({...editFormVals,[f.id]:e.target.value})} style={{...inpEdit,padding:"7px 10px",fontSize:"12px",cursor:"pointer"}}><option value="">Selecciona…</option>{f.options.map(o=><option key={o} value={o}>{o}</option>)}</select>
+                      :<input type={f.type==="number"?"number":f.type==="date"?"date":"text"} value={editFormVals[f.id]||""} onChange={e=>setEditFormVals({...editFormVals,[f.id]:e.target.value})} style={{...inpEdit,padding:"7px 10px",fontSize:"12px"}}/>
                   ):(
                     <div style={{fontSize:"13px",color:T.textMid,lineHeight:1.7,fontFamily:f.type==="number"||f.type==="date"?"'Outfit',sans-serif":"inherit"}}>{Array.isArray(val)?val.join(", "):val||<span style={{color:T.textXSoft,fontStyle:"italic"}}>—</span>}</div>
                   )}
@@ -881,7 +968,7 @@ function DeclarationDetail({declaration,currentUser,markets,allUsers,onBack,onUp
           </div>
         </Card>
 
-        {/* Activity history */}
+        {/* Activity history + inline actions */}
         <Card>
           <SectionHeader title="Historial de actividad"/>
           <div style={{padding:"12px 16px"}}>
@@ -889,7 +976,7 @@ function DeclarationDetail({declaration,currentUser,markets,allUsers,onBack,onUp
             {d.comments.map((c,i)=>{
               const ts=cTs[c.type||"action"]||cTs["action"];
               return <div key={i} style={{display:"flex",gap:"9px",marginBottom:"10px"}}>
-                <div style={{width:"26px",height:"26px",borderRadius:"50%",background:"linear-gradient(135deg,#2169CC,#1853A8)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"10px",fontWeight:700,color:T.text,flexShrink:0}}>{(c.author||"?")[0]}</div>
+                <div style={{width:"26px",height:"26px",borderRadius:"50%",background:"linear-gradient(135deg,#2169CC,#1853A8)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"10px",fontWeight:700,color:"#fff",flexShrink:0}}>{(c.author||"?")[0]}</div>
                 <div style={{background:ts.bg,borderRadius:"8px",padding:"8px 12px",flex:1,border:`1px solid ${ts.border}`}}>
                   <div style={{display:"flex",alignItems:"center",gap:"6px",marginBottom:"3px",flexWrap:"wrap"}}>
                     <span style={{fontSize:"11px",fontWeight:700,color:T.text,fontFamily:"'Outfit',sans-serif"}}>{c.author}</span>
@@ -902,79 +989,100 @@ function DeclarationDetail({declaration,currentUser,markets,allUsers,onBack,onUp
               </div>;
             })}
 
-            {/* Manager/Compliance: request info button */}
-            {canRequestInfo&&!isAdmin&&<>
-              <button onClick={()=>setShowInfoBox(!showInfoBox)} style={{marginTop:"8px",padding:"7px 14px",background:"rgba(90,180,240,0.10)",border:"1px solid rgba(90,180,240,0.3)",color:"#5AB4F0",borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600}}>↩ Solicitar información al empleado</button>
-              {showInfoBox&&<div style={{marginTop:"9px",background:T.accentLight,border:`1px solid ${T.borderMid}`,borderRadius:"8px",padding:"12px"}}>
-                <div style={{fontSize:"11px",color:"#5AB4F0",fontFamily:"'Outfit',sans-serif",marginBottom:"7px",fontWeight:600}}>¿Qué información necesitas?</div>
-                <textarea value={infoText} onChange={e=>setInfoText(e.target.value)} rows={3} placeholder="Describe qué documentación o aclaración se requiere…" style={{width:"100%",background:T.tableHead,border:"1px solid rgba(90,180,240,0.20)",borderRadius:"6px",padding:"7px 10px",fontSize:"12px",color:T.text,fontFamily:"'Outfit',sans-serif",outline:"none",resize:"none",boxSizing:"border-box"}}/>
-                <div style={{display:"flex",gap:"7px",marginTop:"7px",justifyContent:"flex-end"}}>
-                  <button onClick={()=>{setShowInfoBox(false);setInfoText("");}} style={{padding:"5px 12px",background:T.tableHead,border:`1px solid ${T.border}`,color:T.textSoft,borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px"}}>Cancelar</button>
-                  <button onClick={()=>{if(!infoText.trim()){alert("Indica qué información se solicita.");return;}act("Info solicitada",infoText,"info_request");}} style={{padding:"5px 12px",background:"#5AB4F0",border:"none",color:T.text,borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600}}>Enviar solicitud</button>
-                </div>
-              </div>}
-            </>}
-
-            {/* Employee: info mode — add comment + resubmit */}
+            {/* ── Employee: resubmit after info request ── */}
             {canResubmit&&<div style={{marginTop:"12px",background:T.accentLight,border:`1px solid ${T.borderMid}`,borderRadius:"10px",padding:"14px"}}>
               <div style={{fontSize:"12px",fontWeight:700,color:"#2169CC",fontFamily:"'Outfit',sans-serif",marginBottom:"4px"}}>↩ Se ha solicitado información adicional</div>
-              <div style={{fontSize:"12px",color:T.textSoft,marginBottom:"12px",lineHeight:1.6}}>Edita el formulario si es necesario y añade un comentario explicando los cambios realizados antes de reenviar.</div>
+              <div style={{fontSize:"12px",color:T.textSoft,marginBottom:"12px",lineHeight:1.6}}>Edita el formulario si es necesario y añade un comentario antes de reenviar.</div>
               <label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"5px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Tu comentario *</label>
-              <textarea value={employeeComment} onChange={e=>setEmployeeComment(e.target.value)} rows={3} placeholder="Explica los cambios realizados o la información adicional aportada…" style={{width:"100%",background:T.tableHead,border:`1px solid ${T.borderMid}`,borderRadius:"7px",padding:"8px 11px",fontSize:"12px",color:T.text,fontFamily:"'Outfit',sans-serif",outline:"none",resize:"none",boxSizing:"border-box",lineHeight:1.65,marginBottom:"10px"}}/>
-              <button onClick={handleResubmit} style={{padding:"8px 18px",background:"linear-gradient(135deg,#2169CC,#1853A8)",border:"none",color:T.text,borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"12px",fontWeight:600,boxShadow:"0 2px 6px rgba(33,105,204,0.2)"}}>Reenviar declaración →</button>
+              <textarea value={employeeComment} onChange={e=>setEmployeeComment(e.target.value)} rows={3} placeholder="Explica los cambios realizados…" style={{width:"100%",background:T.mode==="dark"?"rgba(255,255,255,0.07)":"#fff",border:`1px solid ${T.borderMid}`,borderRadius:"7px",padding:"8px 11px",fontSize:"12px",color:T.text,fontFamily:"'Outfit',sans-serif",outline:"none",resize:"none",boxSizing:"border-box",lineHeight:1.65,marginBottom:"10px"}}/>
+              <button onClick={handleResubmit} style={{padding:"8px 18px",background:"linear-gradient(135deg,#2169CC,#1853A8)",border:"none",color:"#fff",borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"12px",fontWeight:600}}>Reenviar declaración →</button>
             </div>}
+
+            {/* ══ REVIEWER ACTIONS ══ */}
+            {(canManagerAct||canComplianceAct||canLegalAct)&&(()=>{
+              // Shared button style — equal height, consistent look
+              const btn=(bg,border,color)=>({padding:"0 16px",height:"34px",background:bg,border:`1px solid ${border}`,color,borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600,display:"inline-flex",alignItems:"center",gap:"6px",whiteSpace:"nowrap"});
+
+              const infoBtn = (canRequestInfoMgr||canRequestInfoCompliance)&&!isAdmin;
+
+              return <div style={{marginTop:"16px",paddingTop:"14px",borderTop:`1px solid ${T.border}`}}>
+                {/* Row 1 — Solicitar información */}
+                {infoBtn&&<div style={{marginBottom:"8px"}}>
+                  <button onClick={()=>setShowInfoBox(!showInfoBox)} style={btn("rgba(90,180,240,0.10)","rgba(90,180,240,0.3)","#5AB4F0")}>↩ Solicitar información al empleado</button>
+                  {showInfoBox&&<div style={{marginTop:"9px",background:T.accentLight,border:`1px solid ${T.borderMid}`,borderRadius:"8px",padding:"12px"}}>
+                    <div style={{fontSize:"11px",color:"#5AB4F0",fontFamily:"'Outfit',sans-serif",marginBottom:"7px",fontWeight:600}}>¿Qué información necesitas?</div>
+                    <textarea value={infoText} onChange={e=>setInfoText(e.target.value)} rows={3} placeholder="Describe qué documentación o aclaración se requiere…" style={{width:"100%",background:T.mode==="dark"?"rgba(255,255,255,0.07)":"#fff",border:"1px solid rgba(90,180,240,0.20)",borderRadius:"6px",padding:"7px 10px",fontSize:"12px",color:T.text,fontFamily:"'Outfit',sans-serif",outline:"none",resize:"none",boxSizing:"border-box"}}/>
+                    <div style={{display:"flex",gap:"7px",marginTop:"7px",justifyContent:"flex-end"}}>
+                      <button onClick={()=>{setShowInfoBox(false);setInfoText("");}} style={{padding:"5px 12px",background:T.bgSoft,border:`1px solid ${T.border}`,color:T.textSoft,borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px"}}>Cancelar</button>
+                      <button onClick={()=>{if(!infoText.trim()){alert("Indica qué información se solicita.");return;}act("Info solicitada",infoText,"info_request");}} style={{padding:"5px 12px",background:"#5AB4F0",border:"none",color:"#fff",borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600}}>Enviar solicitud</button>
+                    </div>
+                  </div>}
+                </div>}
+
+                {/* Row 2 — Primary action buttons */}
+                <div style={{display:"flex",gap:"8px",flexWrap:"wrap",alignItems:"stretch"}}>
+
+                  {/* Manager — conflict */}
+                  {managerNeedsForm&&<>
+                    {canPassCompliance&&<button onClick={()=>setConfirmAction({newStatus:"En revisión compliance",comment:`Revisado por Manager. Enviado a ${compName} para revisión de Compliance.`,ctype:"review",label:"Enviar a Compliance",body:`¿Confirmas el envío a ${compName} (Compliance Manager)?`,confirmColor:"linear-gradient(135deg,#1853A8,#2169CC)",recipient:compName})} style={btn("rgba(167,139,250,0.10)","rgba(167,139,250,0.3)","#A78BFA")}>◑ Enviar a Compliance</button>}
+                    <button onClick={()=>setShowCompleteForm(!showCompleteForm)} style={btn("rgba(52,211,153,0.10)","rgba(74,222,128,0.3)","#34D399")}>✓ Completar revisión</button>
+                  </>}
+
+                  {/* Manager — gift */}
+                  {managerGiftApprove&&<>
+                    {canPassCompliance&&<button onClick={()=>setConfirmAction({newStatus:"En revisión compliance",comment:`Revisado por Manager. Enviado a ${compName} para Compliance.`,ctype:"review",label:"Enviar a Compliance",body:`¿Confirmas el envío a ${compName} (Compliance Manager)?`,confirmColor:"linear-gradient(135deg,#1853A8,#2169CC)",recipient:compName})} style={btn("rgba(167,139,250,0.10)","rgba(167,139,250,0.3)","#A78BFA")}>◑ Enviar a Compliance</button>}
+                    <button onClick={()=>setConfirmAction({newStatus:"Completado",comment:`Regalo aprobado por Manager (${fullName(currentUser)}).`,ctype:"completed",label:"Aprobar regalo",body:"¿Confirmas la aprobación de este regalo?",confirmColor:"linear-gradient(135deg,#059669,#34D399)"})} style={btn("rgba(52,211,153,0.10)","rgba(74,222,128,0.3)","#34D399")}>✓ Aprobar</button>
+                    <button onClick={()=>setConfirmAction({newStatus:workflow.autoClose?"Completado":"Rechazado",comment:`Regalo rechazado por Manager (${fullName(currentUser)}).`,ctype:"rejected",label:"Rechazar regalo",body:"¿Confirmas el rechazo de este regalo?",confirmColor:"#F87171"})} style={btn("rgba(248,113,113,0.10)","rgba(248,113,113,0.3)","#F87171")}>✕ Rechazar</button>
+                  </>}
+
+                  {/* Compliance — conflict */}
+                  {complianceConflictApprove&&<>
+                    {canEscalateCompliance&&<button onClick={()=>setConfirmAction({newStatus:"Escalado",comment:`Declaración escalada a ${legalName} (Chief Compliance Officer) por Compliance.`,ctype:"escalation",label:"Escalar a CCO",body:`¿Confirmas escalar a ${legalName} (Chief Compliance Officer)?`,confirmColor:"#F87171",recipient:legalName})} style={btn("rgba(248,113,113,0.10)","rgba(248,113,113,0.3)","#F87171")}>⚠ Escalar a CCO</button>}
+                    <button onClick={()=>setShowCompleteForm(!showCompleteForm)} style={btn("rgba(52,211,153,0.10)","rgba(74,222,128,0.3)","#34D399")}>✓ Completar revisión</button>
+                  </>}
+
+                  {/* Compliance — gift */}
+                  {complianceGiftActions&&<>
+                    <button onClick={()=>setConfirmAction({newStatus:"Completado",comment:`Regalo aprobado por Compliance (${fullName(currentUser)}).`,ctype:"completed",label:"Aprobar regalo",body:"¿Confirmas la aprobación de este regalo?",confirmColor:"linear-gradient(135deg,#059669,#34D399)"})} style={btn("rgba(52,211,153,0.10)","rgba(74,222,128,0.3)","#34D399")}>✓ Aprobar</button>
+                    <button onClick={()=>setConfirmAction({newStatus:workflow.autoClose?"Completado":"Rechazado",comment:`Regalo rechazado por Compliance (${fullName(currentUser)}).`,ctype:"rejected",label:"Rechazar regalo",body:"¿Confirmas el rechazo de este regalo?",confirmColor:"#F87171"})} style={btn("rgba(248,113,113,0.10)","rgba(248,113,113,0.3)","#F87171")}>✕ Rechazar</button>
+                    {canEscalateCompliance&&<button onClick={()=>setConfirmAction({newStatus:"Escalado",comment:`Regalo escalado a ${legalName} (Chief Compliance Officer) por Compliance.`,ctype:"escalation",label:"Escalar a CCO",body:`¿Confirmas escalar a ${legalName} (Chief Compliance Officer)?`,confirmColor:"#F87171",recipient:legalName})} style={btn("rgba(248,113,113,0.10)","rgba(248,113,113,0.3)","#F87171")}>⚠ Escalar a CCO</button>}
+                  </>}
+
+                  {/* Legal — conflict */}
+                  {legalNeedsForm&&<>
+                    <button onClick={()=>setShowCompleteForm(!showCompleteForm)} style={btn("rgba(52,211,153,0.10)","rgba(74,222,128,0.3)","#34D399")}>✓ Completar revisión</button>
+                  </>}
+
+                  {/* Legal — gift */}
+                  {legalGiftActions&&<>
+                    <button onClick={()=>setConfirmAction({newStatus:"Completado",comment:`Regalo aprobado por Chief Compliance Officer (${fullName(currentUser)}).`,ctype:"completed",label:"Aprobar regalo",body:"¿Confirmas la aprobación definitiva de este regalo?",confirmColor:"linear-gradient(135deg,#059669,#34D399)"})} style={btn("rgba(52,211,153,0.10)","rgba(74,222,128,0.3)","#34D399")}>✓ Aprobar</button>
+                    <button onClick={()=>setConfirmAction({newStatus:workflow.autoClose?"Completado":"Rechazado",comment:`Regalo rechazado por Chief Compliance Officer (${fullName(currentUser)}).`,ctype:"rejected",label:"Rechazar regalo",body:"¿Confirmas el rechazo definitivo de este regalo?",confirmColor:"#F87171"})} style={btn("rgba(248,113,113,0.10)","rgba(248,113,113,0.3)","#F87171")}>✕ Rechazar</button>
+                  </>}
+                </div>
+
+                {/* Conflict completion form — expands below buttons */}
+                {showCompleteForm&&(managerNeedsForm||complianceConflictApprove||legalNeedsForm)&&<ConflictForm/>}
+              </div>;
+            })()}
           </div>
         </Card>
       </div>
 
-      {/* Actions sidebar */}
+      {/* Status sidebar */}
       <div>
         <Card style={{position:isMobile?"static":"sticky",top:"16px"}}>
-          <SectionHeader title="Estado & Acciones"/>
+          <SectionHeader title="Estado"/>
           <div style={{padding:"12px 14px"}}>
-            {[["Estado",<StatusBadge status={d.status}/>],["Declarante",<span style={{fontSize:"12px",color:T.textMid,fontWeight:500}}>{d.userName}</span>],["Mercado",<span style={{fontSize:"11px",color:T.textSoft,fontFamily:"'Outfit',sans-serif"}}>{d.market||"—"}</span>],["Creado",<span style={{fontSize:"11px",color:T.textSoft,fontFamily:"'Outfit',sans-serif"}}>{fmtDT(d.createdAt)}</span>]].map(([l,v])=>(
+            {[["Estado",<StatusBadge status={d.status}/>],["Categoría",<span style={{fontSize:"12px",color:T.textMid,fontWeight:500}}>{d.type}</span>],["Declarante",<span style={{fontSize:"12px",color:T.textMid,fontWeight:500}}>{d.userName}</span>],["Mercado",<span style={{fontSize:"11px",color:T.textSoft,fontFamily:"'Outfit',sans-serif"}}>{d.market||"—"}</span>],["Creado",<span style={{fontSize:"11px",color:T.textSoft,fontFamily:"'Outfit',sans-serif"}}>{fmtDT(d.createdAt)}</span>]].map(([l,v])=>(
               <div key={l} style={{marginBottom:"10px",paddingBottom:"10px",borderBottom:`1px solid ${T.border}`}}>
                 <div style={{fontSize:"10px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"3px",textTransform:"uppercase",letterSpacing:"0.04em"}}>{l}</div>
                 {v}
               </div>
             ))}
-            <div style={{display:"grid",gap:"6px"}}>
-              {canSubmitDraft&&<button onClick={()=>setConfirmAction({newStatus:getInitialReviewStatus(workflow),comment:null,ctype:"submitted",label:"Enviar declaración",body:"¿Confirmas el envío? No podrás editarla a menos que te la devuelvan.",confirmColor:"linear-gradient(135deg,#1853A8,#2169CC)"})} style={{padding:"9px",borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,color:"#5AB4F0",fontWeight:600}}>✓ Enviar declaración</button>}
-              {canPassCompliance&&<button onClick={()=>{const compUser=allUsers.find(u=>u.role==="Compliance Manager"&&u.active);const compName=compUser?compUser.name:"Compliance";setConfirmAction({newStatus:"En revisión compliance",comment:`Revisado por Manager. Enviado a ${compName} para revisión de Compliance.`,ctype:"review",label:"Enviar a Compliance",body:`¿Confirmas que deseas enviar esta declaración a ${compName} (Compliance Manager)?`,confirmColor:"linear-gradient(135deg,#1853A8,#2169CC)",recipient:compName});}} style={{padding:"9px",borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",background:"rgba(167,139,250,0.10)",border:"1px solid rgba(167,139,250,0.3)",color:"#A78BFA",fontWeight:500}}>◑ Enviar a Compliance</button>}
-              {(canCompleteConflictMgr&&!canPassCompliance)||canCompleteCompliance||canCompleteMgr||canCompleteLegal?<button onClick={()=>setShowCompleteForm(!showCompleteForm)} style={{padding:"9px",borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",background:"rgba(52,211,153,0.10)",border:"1px solid rgba(52,211,153,0.3)",color:"#34D399",fontWeight:600}}>✓ Completar conflicto</button>:null}
-              {canEscalate&&(()=>{const legalUser=allUsers.find(u=>u.role==="Head de Legal"&&u.active);const legalName=legalUser?legalUser.name:"Head de Legal";return <button onClick={()=>setConfirmAction({newStatus:"Escalado",comment:`Declaración escalada a ${legalName} (Head de Legal).`,ctype:"escalation",label:"Escalar a Legal",body:`¿Confirmas que deseas escalar esta declaración a ${legalName} (Head de Legal)?`,confirmColor:"#F87171",recipient:legalName})} style={{padding:"9px",borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",background:"rgba(248,113,113,0.10)",border:"1px solid rgba(248,113,113,0.3)",color:"#F87171",fontWeight:600}}>⚠ Escalar a {legalName}</button>;})()} 
-              {!hasActions&&!isAdmin&&!isManagerOwnDecl&&<div style={{fontSize:"11px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif",textAlign:"center",padding:"10px",background:T.accentLight,borderRadius:"7px",border:`1px solid ${T.border}`}}>Sin acciones disponibles</div>}
-            </div>
+            {canSubmitDraft&&<button onClick={()=>setConfirmAction({newStatus:getInitialReviewStatus(workflow),comment:null,ctype:"submitted",label:"Enviar declaración",body:"¿Confirmas el envío? No podrás editarla a menos que te la devuelvan.",confirmColor:"linear-gradient(135deg,#1853A8,#2169CC)"})} style={{width:"100%",padding:"9px",borderRadius:"7px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,color:"#5AB4F0",fontWeight:600}}>✓ Enviar declaración</button>}
+            {!hasActions&&!isAdmin&&!isManagerOwnDecl&&<div style={{fontSize:"11px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif",textAlign:"center",padding:"10px",background:T.accentLight,borderRadius:"7px",border:`1px solid ${T.border}`}}>Sin acciones disponibles</div>}
           </div>
         </Card>
-        {showCompleteForm&&<Card style={{marginTop:"10px",border:"1px solid rgba(74,222,128,0.25)"}}>
-          <SectionHeader title="Completar conflicto"/>
-          <div style={{padding:"14px 16px"}}>
-            <div style={{fontSize:"12px",color:T.textSoft,marginBottom:"14px",lineHeight:1.6}}>Completa la revisión respondiendo las siguientes preguntas y documentando lo acordado con el empleado.</div>
-            {[
-              {key:"q1",label:"¿Se ha confirmado la existencia de un conflicto de interés real?",ph:"Sí / No / Parcialmente — explica brevemente…"},
-              {key:"q2",label:"¿Se han tomado medidas para mitigar o eliminar el conflicto?",ph:"Describe las medidas adoptadas…"},
-              {key:"q3",label:"¿Se requiere seguimiento adicional o revisión periódica?",ph:"Indica si procede seguimiento y con qué periodicidad…"},
-            ].map(({key,label,ph})=>(
-              <div key={key} style={{marginBottom:"12px"}}>
-                <label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"5px",textTransform:"uppercase",letterSpacing:"0.05em"}}>{label}</label>
-                <textarea value={completeFormData[key]} onChange={e=>setCompleteFormData({...completeFormData,[key]:e.target.value})} rows={3} placeholder={ph} style={{width:"100%",background:T.tableHead,border:"1px solid rgba(74,222,128,0.25)",borderRadius:"7px",padding:"8px 11px",fontSize:"12px",color:T.text,fontFamily:"'Outfit',sans-serif",outline:"none",resize:"none",boxSizing:"border-box",lineHeight:1.65}}/>
-              </div>
-            ))}
-            <div style={{marginBottom:"12px"}}>
-              <label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"5px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Lo acordado con el empleado *</label>
-              <textarea value={completeFormData.agreed} onChange={e=>setCompleteFormData({...completeFormData,agreed:e.target.value})} rows={4} placeholder="Describe el acuerdo alcanzado con el empleado y las condiciones establecidas…" style={{width:"100%",background:T.tableHead,border:"1px solid rgba(74,222,128,0.25)",borderRadius:"7px",padding:"8px 11px",fontSize:"12px",color:T.text,fontFamily:"'Outfit',sans-serif",outline:"none",resize:"none",boxSizing:"border-box",lineHeight:1.65}}/>
-            </div>
-            <div style={{display:"flex",gap:"8px",justifyContent:"flex-end"}}>
-              <button onClick={()=>{setShowCompleteForm(false);setCompleteFormData({q1:"",q2:"",q3:"",agreed:""}); }} style={{padding:"7px 14px",background:T.accentLight,border:`1px solid ${T.border}`,color:T.textSoft,borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px"}}>Cancelar</button>
-              <button onClick={()=>{
-                if(!completeFormData.agreed.trim()){alert("El campo 'Lo acordado con el empleado' es obligatorio.");return;}
-                const summary=`Revisión completada por ${fullName(currentUser)}.\n\n¿Conflicto real?: ${completeFormData.q1||"—"}\nMedidas adoptadas: ${completeFormData.q2||"—"}\nSeguimiento: ${completeFormData.q3||"—"}\n\nAcordado con el empleado: ${completeFormData.agreed}`;
-                act("Completado",summary,"completed",null,completeFormData,null);
-              }} style={{padding:"8px 18px",background:"linear-gradient(135deg,#1853A8,#2169CC)",border:"none",color:T.text,borderRadius:"6px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"12px",fontWeight:500,boxShadow:"0 4px 16px rgba(21,83,168,0.4)"}}>✓ Confirmar y completar</button>
-            </div>
-          </div>
-        </Card>}
       </div>
     </div>
   </div>;
@@ -1025,7 +1133,7 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
 
   const selMkt=markets.find(m=>m.id===selectedMktId)||markets[0];
   const updSelMkt=(patch)=>setMarkets(markets.map(m=>m.id===selectedMktId?{...m,...patch}:m));
-  const legalUsers=users.filter(u=>u.role==="Head de Legal"&&u.active);
+  const legalUsers=users.filter(u=>u.role==="Chief Compliance Officer"&&u.active);
   const inp={background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"6px",padding:"7px 10px",color:T.text,fontSize:"0.84rem",fontFamily:"'Outfit',sans-serif",outline:"none"};
 
   // Workflow type state
@@ -1047,8 +1155,30 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
     if(!wtForm.name.trim()){alert("Nombre obligatorio.");return;}
     const id=wtForm.name.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"");
     if(workflowTypes.find(wt=>wt.id===id)){alert("Ya existe un workflow con ese nombre.");return;}
-    const newWt={id,name:wtForm.name,categoryValue:wtForm.categoryValue||wtForm.name,
-      workflow:{...INIT_WORKFLOW,thresholdsEnabled:false},fields:[],formMeta:{subtitle:""}};
+
+    // Seed standard config+fields for known workflow types
+    const catVal=wtForm.categoryValue||wtForm.name;
+    const isRegalos   = id==="regalos" || catVal==="Regalos y beneficios";
+    const isConflicto = id==="conflicto-intereses" || catVal==="Conflicto de interés";
+
+    const seededWorkflow = isRegalos
+      ? {...INIT_WORKFLOW, thresholdsEnabled:true, thresholdAutoApprove:50, thresholdSkipToCompliance:150}
+      : {...INIT_WORKFLOW, thresholdsEnabled:false};
+
+    const seededFields = isRegalos
+      ? FIELDS_REGALO.map(f=>({...f}))
+      : isConflicto
+        ? FIELDS_CONFLICTO.map(f=>({...f}))
+        : [];
+
+    const seededMeta = isRegalos
+      ? {subtitle:"Declara cualquier regalo, invitación o beneficio recibido de terceros. La transparencia protege tanto al empleado como a la empresa."}
+      : isConflicto
+        ? {subtitle:"Declara cualquier situación que pueda constituir un conflicto de interés. Tu declaración es confidencial y es un acto de transparencia."}
+        : {subtitle:""};
+
+    const newWt={id, name:wtForm.name, categoryValue:catVal,
+      workflow:seededWorkflow, fields:seededFields, formMeta:seededMeta};
     const updated=[...workflowTypes,newWt];
     updSelMkt({workflowTypes:updated});
     setSelectedWtId(id);
@@ -1091,10 +1221,9 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
   const removeOpt=(fid,o)=>setFields(fields.map(f=>f.id===fid?{...f,options:f.options.filter(x=>x!==o)}:f));
 
   const wfOpts=[
-    {key:"requireManagerReview",            label:"Revisión por Manager",           desc:"El Manager debe revisar antes de Compliance.",          icon:"◐",c:"#C9A84C"},
-    {key:"requireComplianceReview",         label:"Revisión por Compliance",        desc:"El Compliance Manager debe completar la declaración.",  icon:"◑",c:"#1853A8"},
-    {key:"allowEscalationByComplianceOnly", label:"Escalado solo por Compliance",   desc:"Solo el Compliance Manager puede escalar a Legal.",     icon:"🔒",c:"#92400E"},
-    {key:"autoClose",                       label:"Completado automático",          desc:"Se completa al terminar el último paso.",               icon:"✓",c:"#34D399"},
+    {key:"requireManagerReview",  label:"Revisión por Manager",    desc:"El Manager debe revisar antes de Compliance.",         icon:"◐",c:"#C9A84C"},
+    {key:"requireComplianceReview",label:"Revisión por Compliance", desc:"El Compliance Manager debe completar la declaración.", icon:"◑",c:"#1853A8"},
+    {key:"autoClose",              label:"Completado automático",   desc:"Se completa al terminar el último paso.",              icon:"✓",c:"#34D399"},
   ];
 
   const TABS=[{id:"general",label:"⚙ General"},{id:"users",label:"👤 Usuarios"},{id:"markets",label:"🌍 Mercados"},{id:"workflow",label:"⚙ Workflow"},{id:"form",label:"◻ Formulario"}];
@@ -1140,7 +1269,7 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
           {[["name","Nombre"],["lastName","Apellidos"],["email","Email"],["dept","Departamento"]].map(([k,l])=><div key={k}><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>{l}</label><input value={userForm[k]} onChange={e=>setUserForm({...userForm,[k]:e.target.value})} style={{...inp,width:"100%"}}/></div>)}
           <div><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Rol</label>
             <select value={userForm.role} onChange={e=>setUserForm({...userForm,role:e.target.value})} style={{...inp,width:"100%",cursor:"pointer"}}>
-              {["Empleado","Manager","Compliance Manager","Head de Legal","Administrador Empresa"].map(r=><option key={r} value={r}>{r}</option>)}
+              {["Empleado","Manager","Compliance Manager","Chief Compliance Officer","Administrador Empresa"].map(r=><option key={r} value={r}>{r}</option>)}
             </select></div>
           <div><label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Mercado</label>
             <select value={userForm.market} onChange={e=>setUserForm({...userForm,market:e.target.value})} style={{...inp,width:"100%",cursor:"pointer"}}>
@@ -1256,16 +1385,38 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
           <SectionHeader title={`Configuración — ${selWt.name}`}/>
           <div style={{padding:"14px 16px"}}>
             <div style={{marginBottom:"12px",padding:"10px 12px",background:"rgba(201,168,76,0.08)",border:"1px solid rgba(201,168,76,0.28)",borderRadius:"7px",fontSize:"11px",color:"#92400E"}}>💡 Los cambios aplican a nuevas declaraciones de categoría <b>{selWt.name}</b>.</div>
-            <div style={{display:"grid",gap:"9px"}}>
+
+            {/* ── Nombre y categoría ── */}
+            <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:"10px",marginBottom:"12px",padding:"13px 14px",background:T.bgSoft,border:`1px solid ${T.border}`,borderRadius:"9px"}}>
+              <div>
+                <label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Nombre del workflow</label>
+                <input value={selWt.name} onChange={e=>{const v=e.target.value;updSelMkt({workflowTypes:workflowTypes.map(wt=>wt.id===selWt.id?{...wt,name:v}:wt)});}} style={{...inp,width:"100%",fontSize:"12px"}}/>
+              </div>
+              <div>
+                <label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Valor categoría <span style={{color:T.textXSoft,textTransform:"none",fontSize:"9px"}}>(si diferente al nombre)</span></label>
+                <input value={selWt.categoryValue||selWt.name} onChange={e=>{const v=e.target.value;updSelMkt({workflowTypes:workflowTypes.map(wt=>wt.id===selWt.id?{...wt,categoryValue:v}:wt)});}} style={{...inp,width:"100%",fontSize:"12px"}}/>
+              </div>
+            </div>
+
+            {/* ── Ocultar workflow ── */}
+            <div style={{display:"flex",alignItems:"center",gap:"12px",padding:"13px 14px",background:selWt.hidden?"rgba(109,135,168,0.08)":T.bgSoft,border:`1px solid ${selWt.hidden?"rgba(109,135,168,0.3)":T.border}`,borderRadius:"9px"}}>
+              <div style={{width:"32px",height:"32px",borderRadius:"8px",background:selWt.hidden?"#6D87A8":"rgba(90,180,240,0.12)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px",color:selWt.hidden?"white":T.textXSoft,flexShrink:0}}>👁</div>
+              <div style={{flex:1}}><div style={{fontSize:"13px",fontWeight:600,color:T.text}}>Ocultar workflow</div><div style={{fontSize:"11px",color:T.textSoft,marginTop:"2px"}}>{selWt.hidden?"Workflow oculto — activa el toggle para volver a configurarlo.":"Los empleados no verán esta categoría al crear una declaración."}</div></div>
+              <Toggle value={!!selWt.hidden} onChange={v=>updSelMkt({workflowTypes:workflowTypes.map(wt=>wt.id===selWt.id?{...wt,hidden:v}:wt)})}/>
+            </div>
+
+            {!selWt.hidden&&<div style={{display:"grid",gap:"9px",marginTop:"12px"}}>
               {wfOpts.map(opt=><div key={opt.key} style={{display:"flex",alignItems:"center",gap:"12px",padding:"13px 14px",background:wf[opt.key]?"rgba(167,139,250,0.08)":T.bgSoft,border:`1px solid ${wf[opt.key]?"rgba(167,139,250,0.3)":T.border}`,borderRadius:"9px"}}>
                 <div style={{width:"32px",height:"32px",borderRadius:"8px",background:wf[opt.key]?opt.c:"rgba(90,180,240,0.12)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px",color:wf[opt.key]?"white":T.textXSoft,flexShrink:0}}>{opt.icon}</div>
                 <div style={{flex:1}}><div style={{fontSize:"13px",fontWeight:600,color:T.text}}>{opt.label}</div><div style={{fontSize:"11px",color:T.textSoft,marginTop:"2px"}}>{opt.desc}</div></div>
                 <Toggle value={!!wf[opt.key]} onChange={v=>setWf({[opt.key]:v})}/>
               </div>)}
-            </div>
+            </div>}
           </div>
         </Card>
 
+        {/* Thresholds, Escalado y Vista previa — solo visibles si el workflow no está oculto */}
+        {!selWt.hidden&&<>
         {/* Thresholds */}
         <Card style={{marginBottom:"14px",border:wf.thresholdsEnabled?`1px solid rgba(201,168,76,0.35)`:`1px solid ${T.border}`}}>
           <SectionHeader title="Umbrales automáticos (Thresholds)"/>
@@ -1310,16 +1461,16 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
 
         {/* Escalado */}
         <Card style={{marginBottom:"14px"}}>
-          <SectionHeader title="Escalado a Legal"/>
+          <SectionHeader title="Escalado a CCO"/>
           <div style={{padding:"14px 16px"}}>
             <div style={{display:"flex",alignItems:"center",gap:"12px",padding:"13px 14px",background:wf.allowEscalation?"rgba(248,113,113,0.08)":T.bgSoft,border:`1px solid ${wf.allowEscalation?"rgba(248,113,113,0.3)":T.border}`,borderRadius:"9px",marginBottom:wf.allowEscalation?"12px":"0"}}>
               <div style={{width:"32px",height:"32px",borderRadius:"8px",background:wf.allowEscalation?"#F87171":"rgba(90,180,240,0.12)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px",color:wf.allowEscalation?"white":T.textXSoft,flexShrink:0}}>⚠</div>
-              <div style={{flex:1}}><div style={{fontSize:"13px",fontWeight:600,color:T.text}}>Permitir escalado a Legal</div><div style={{fontSize:"11px",color:T.textSoft,marginTop:"2px"}}>Managers pueden escalar al Head de Legal.</div></div>
+              <div style={{flex:1}}><div style={{fontSize:"13px",fontWeight:600,color:T.text}}>Permitir escalado a CCO</div><div style={{fontSize:"11px",color:T.textSoft,marginTop:"2px"}}>Compliance Managers pueden escalar al Chief Compliance Officer.</div></div>
               <Toggle value={!!wf.allowEscalation} onChange={v=>setWf({allowEscalation:v})}/>
             </div>
             {wf.allowEscalation&&<div>
-              <label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Head de Legal asignado</label>
-              {legalUsers.length===0?<div style={{padding:"10px 12px",background:"rgba(248,113,113,0.08)",border:"1px solid rgba(248,113,113,0.25)",borderRadius:"7px",fontSize:"12px",color:"#F87171"}}>⚠ No hay usuarios con rol Head de Legal activos.</div>:(
+              <label style={{display:"block",fontSize:"10px",color:T.textSoft,fontFamily:"'Outfit',sans-serif",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Chief Compliance Officer asignado</label>
+              {legalUsers.length===0?<div style={{padding:"10px 12px",background:"rgba(248,113,113,0.08)",border:"1px solid rgba(248,113,113,0.25)",borderRadius:"7px",fontSize:"12px",color:"#F87171"}}>⚠ No hay usuarios con rol Chief Compliance Officer activos.</div>:(
                 <select value={wf.escalationUserId||""} onChange={e=>setWf({escalationUserId:Number(e.target.value)})} style={{...inp,width:"100%",padding:"9px 12px",fontSize:"13px"}}><option value="">Selecciona…</option>{legalUsers.map(u=><option key={u.id} value={u.id}>{fullName(u)} — {u.dept}</option>)}</select>
               )}
             </div>}
@@ -1345,6 +1496,7 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
             </div>
           </div>
         </Card>
+        </>}
       </div>}
       {tab==="workflow"&&!selWt&&<div style={{textAlign:"center",padding:"40px",color:T.textXSoft,fontFamily:"'Outfit',sans-serif",fontSize:"13px",background:T.bgCard,borderRadius:"12px",border:`1px solid ${T.border}`}}>Sin workflows. Pulsa <b style={{color:T.accent}}>+ Nuevo workflow</b> para crear el primero.</div>}
 
@@ -1359,7 +1511,7 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
                 <div style={{fontSize:"13px",fontWeight:600,color:T.text}}>Categoría de la solicitud</div>
                 <div style={{fontSize:"11px",color:T.textSoft,marginTop:"2px"}}>Siempre presente. Vincula con el workflow según la opción elegida.</div>
                 <div style={{marginTop:"6px",display:"flex",gap:"5px",flexWrap:"wrap"}}>
-                  {workflowTypes.map(wt=><span key={wt.id} style={{fontSize:"10px",background:"rgba(90,180,240,0.08)",border:`1px solid ${T.borderMid}`,borderRadius:"4px",padding:"2px 8px",color:T.accent}}>{wt.categoryValue||wt.name}</span>)}
+                  {workflowTypes.map(wt=><span key={wt.id} style={{fontSize:"10px",background:wt.hidden?"rgba(109,135,168,0.06)":"rgba(90,180,240,0.08)",border:`1px solid ${wt.hidden?T.border:T.borderMid}`,borderRadius:"4px",padding:"2px 8px",color:wt.hidden?T.textXSoft:T.accent,opacity:wt.hidden?0.5:1,textDecoration:wt.hidden?"line-through":"none"}}>{wt.categoryValue||wt.name}{wt.hidden?" (oculto)":""}</span>)}
                 </div>
               </div>
               <span style={{fontSize:"10px",color:"#F87171",fontWeight:600,flexShrink:0}}>req. · sistema</span>
@@ -1377,8 +1529,9 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
           <SectionHeader title={`Campos — ${selWt.name} (${fields.filter(f=>f.active).length} activos)`} right={<button onClick={()=>setFields([...fields,{id:`cf${Date.now()}`,label:"Nuevo campo",type:"short_text",required:false,active:true,options:[]}])} style={{padding:"4px 11px",background:"rgba(90,180,240,0.10)",border:`1px solid ${T.borderMid}`,color:"#5AB4F0",borderRadius:"5px",cursor:"pointer",fontFamily:"'Outfit',sans-serif",fontSize:"11px",fontWeight:600}}>+ Campo</button>}/>
           <div style={{padding:"12px 14px",display:"grid",gap:"7px"}}>
             {fields.map((f,i)=>{
-              // If thresholds enabled, the numeric value field (type=number) is locked: can't be hidden or deleted
-              const isValueField = wf.thresholdsEnabled && f.type==="number";
+              // The numeric field is the threshold-linked value field — always undeletable, only hideable when thresholds off
+              const isValueField = f.type==="number";
+              const isValueLocked = wf.thresholdsEnabled && isValueField; // fully locked when thresholds on
               return <div key={f.id} style={{border:`1px solid ${f.active?T.border:"rgba(109,135,168,0.08)"}`,borderRadius:"9px",background:f.active?T.bgCard:T.bgSoft,opacity:f.active?1:0.6}}>
               <div style={{display:"flex",alignItems:"center",gap:"7px",padding:"10px 12px",flexWrap:"wrap"}}>
                 <div style={{display:"flex",flexDirection:"column",gap:"2px",flexShrink:0}}>
@@ -1395,21 +1548,21 @@ function AdminPanel({markets,setMarkets,users,setUsers,isMobile,darkMode,setDark
                   </div>}
                 </div>
                 <select value={f.type} onChange={e=>setFields(fields.map(x=>x.id===f.id?{...x,type:e.target.value}:x))} style={{...inp,cursor:"pointer",fontSize:"11px",padding:"4px 8px"}}>{FIELD_TYPES.map(t=><option key={t.value} value={t.value}>{t.icon} {t.label}</option>)}</select>
-                <label style={{display:"flex",alignItems:"center",gap:"3px",cursor:isValueField?"not-allowed":"pointer",fontSize:"11px",color:T.textSoft,flexShrink:0,opacity:isValueField?0.4:1}}>
-                  <input type="checkbox" checked={f.required} disabled={isValueField} onChange={()=>!isValueField&&setFields(fields.map(x=>x.id===f.id?{...x,required:!x.required}:x))} style={{cursor:isValueField?"not-allowed":"pointer"}}/> req.
+                <label style={{display:"flex",alignItems:"center",gap:"3px",cursor:isValueLocked?"not-allowed":"pointer",fontSize:"11px",color:T.textSoft,flexShrink:0,opacity:isValueLocked?0.4:1}}>
+                  <input type="checkbox" checked={f.required} disabled={isValueLocked} onChange={()=>!isValueLocked&&setFields(fields.map(x=>x.id===f.id?{...x,required:!x.required}:x))} style={{cursor:isValueLocked?"not-allowed":"pointer"}}/> req.
                 </label>
-                {isValueField
+                {isValueLocked
                   ? <div title="Campo obligatorio mientras los thresholds estén activos" style={{width:"36px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"10px",color:"#C9A84C",cursor:"not-allowed"}}>🔒</div>
                   : <Toggle value={f.active} onChange={()=>setFields(fields.map(x=>x.id===f.id?{...x,active:!x.active}:x))}/>
                 }
                 {(f.type==="select"||f.type==="multiselect")&&<button onClick={()=>setEditFieldId(editFieldId===f.id?null:f.id)} style={{padding:"3px 7px",background:editFieldId===f.id?"rgba(90,180,240,0.10)":T.bgSoft,border:`1px solid ${editFieldId===f.id?"rgba(90,180,240,0.25)":T.border}`,color:editFieldId===f.id?T.accent:T.textSoft,borderRadius:"4px",cursor:"pointer",fontSize:"10px",flexShrink:0}}>Opc. {editFieldId===f.id?"▲":"▼"}</button>}
                 {isValueField
-                  ? <div title="No se puede eliminar: campo vinculado a thresholds" style={{fontSize:"15px",padding:"1px",color:"rgba(201,168,76,0.25)",cursor:"not-allowed",flexShrink:0}}>×</div>
+                  ? <div title="Campo vinculado a thresholds — no se puede eliminar" style={{fontSize:"15px",padding:"1px",color:"rgba(201,168,76,0.25)",cursor:"not-allowed",flexShrink:0}}>×</div>
                   : <button onClick={()=>setConfirmDeleteField(f)} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(248,113,113,0.3)",fontSize:"15px",padding:"1px",flexShrink:0}}>×</button>
                 }
               </div>
               {isValueField&&<div style={{padding:"6px 12px 8px",borderTop:`1px solid rgba(201,168,76,0.15)`,background:"rgba(201,168,76,0.04)",fontSize:"10px",color:"#C9A84C",display:"flex",alignItems:"center",gap:"5px"}}>
-                <span>⚖</span> Campo vinculado a thresholds — obligatorio y visible mientras los thresholds estén activos.
+                <span>⚖</span> {wf.thresholdsEnabled ? "Campo vinculado a thresholds — obligatorio y visible mientras los thresholds estén activos." : "Campo numérico vinculado a thresholds — se puede ocultar pero no eliminar."}
               </div>}
               {editFieldId===f.id&&(f.type==="select"||f.type==="multiselect")&&<div style={{padding:"10px 12px",borderTop:`1px solid ${T.border}`,background:T.bgSoft}}>
                 <div style={{display:"flex",gap:"6px",marginBottom:"8px"}}>
@@ -1603,6 +1756,15 @@ export default function App() {
     const allowed=ROLE_NAV[currentUser.role]||[];
     if(!allowed.includes(page)&&page!=="detail") setPage(allowed[0]||"declarations");
   },[currentUser]);
+
+  // Keep currentUser in sync with users state — so admin edits (market, role…) reflect immediately
+  useEffect(()=>{
+    if(!loggedIn) return;
+    const fresh=users.find(u=>u.id===currentUser.id);
+    if(fresh && (fresh.market!==currentUser.market || fresh.role!==currentUser.role || fresh.name!==currentUser.name)){
+      setCurrentUser(fresh);
+    }
+  },[users]);
 
   const handleLogin = (user) => {
     setCurrentUser(user);
