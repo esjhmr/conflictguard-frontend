@@ -131,19 +131,14 @@ const FIELD_TYPES = [
 ];
 
 // ══════════════════════════════════════════════════════════════════
-// MOCK DATA — Iberia only, no Admin user
+// MOCK DATA
 // ══════════════════════════════════════════════════════════════════
 const ALL_USERS_INIT = [
-  {id:1,  name:"Carlota",       lastName:"", email:"carlota@disclosureguard.com",       role:"Empleado",              manager:"Jose",  dept:"Ventas",       market:"Iberia", active:true},
-  {id:2,  name:"Denys",         lastName:"", email:"denys@disclosureguard.com",         role:"Empleado",              manager:"Jose",  dept:"TI",           market:"Iberia", active:true},
-  {id:3,  name:"Gabriela",      lastName:"", email:"gabriela@disclosureguard.com",      role:"Empleado",              manager:"Sunil", dept:"Marketing",    market:"Iberia", active:true},
-  {id:4,  name:"Irene",         lastName:"", email:"irene@disclosureguard.com",         role:"Empleado",              manager:"Sunil", dept:"Marketing",    market:"Iberia", active:true},
-  {id:5,  name:"Jose",          lastName:"", email:"jose@disclosureguard.com",          role:"Manager",               manager:"Vinoth",dept:"Ventas",       market:"Iberia", active:true},
-  {id:6,  name:"Sunil",         lastName:"", email:"sunil@disclosureguard.com",         role:"Manager",               manager:"Vinoth",dept:"Marketing",    market:"Iberia", active:true},
-  {id:7,  name:"Vinoth",        lastName:"", email:"vinoth@disclosureguard.com",        role:"Manager",               manager:null,    dept:"Operaciones",  market:"Iberia", active:true},
-  {id:8,  name:"James",         lastName:"", email:"james@disclosureguard.com",         role:"Compliance Manager",    manager:null,    dept:"Cumplimiento", market:"Iberia", active:true},
-  {id:9,  name:"Jackie",        lastName:"", email:"jackie@disclosureguard.com",        role:"Chief Compliance Officer",         manager:null,    dept:"Legal",        market:"Iberia", active:true},
-  {id:10, name:"Administrador", lastName:"", email:"admin@disclosureguard.com",         role:"Administrador Empresa", manager:null,    dept:"Admin",        market:"Iberia", active:true},
+  {id:1,  name:"Paula",          lastName:"", email:"paula@disclosureguard.com",         role:"Empleado",              manager:"Jose",   dept:"IT", market:"Iberia", active:true},
+  {id:2,  name:"Jose",           lastName:"", email:"jose@disclosureguard.com",           role:"Manager",               manager:"Tobias", dept:"IT", market:"Iberia", active:true},
+  {id:3,  name:"Tobias",         lastName:"", email:"tobias@disclosureguard.com",         role:"Manager",               manager:"Flavio",     dept:"IT", market:"Iberia", active:true},
+  {id:4,  name:"Flavio",         lastName:"", email:"flavio@disclosureguard.com",         role:"Chief Compliance Officer", manager:null,  dept:"IT", market:"Iberia", active:true},
+  {id:5,  name:"admin",          lastName:"", email:"admin@disclosureguard.com",          role:"Administrador Empresa", manager:null,     dept:"IT", market:"Iberia", active:true},
 ];
 
 const fullName = u => u ? (u.lastName ? `${u.name} ${u.lastName}` : u.name) : "";
@@ -208,21 +203,13 @@ const getWorkflowTypeByCategory = (mktCfg, categoryValue) => {
 };
 
 const INIT_DECLARATIONS = [
-  {id:"DEC-001",userId:1,userName:"Carlota",  type:"Relación familiar con proveedor",     formValues:{f1:"Relación familiar con proveedor",f2:"Mi hermano trabaja como director en Proveedor ABC S.L., con quien tenemos contrato activo.",f3:"Proveedor ABC S.L."},status:"En revisión manager",   createdAt:"2026-02-10T09:30:00",updatedAt:"2026-02-11T14:00:00",market:"Iberia",attachments:["contrato_abc.pdf"],comments:[{author:"Jose",      text:"Revisando documentación adjunta.",                                        date:"2026-02-11T14:00:00",type:"review"}]},
-  {id:"DEC-002",userId:2,userName:"Denys",    type:"Segunda actividad laboral",            formValues:{f1:"Segunda actividad laboral",  f2:"Realizo consultoría freelance de software los fines de semana para clientes ajenos al sector.",f3:"Clientes varios"},status:"Completado",            createdAt:"2026-01-20T10:00:00",updatedAt:"2026-01-25T16:30:00",market:"Iberia",attachments:[],                   comments:[{author:"Jose",      text:"Revisado. Sin conflicto aparente.",                                        date:"2026-01-22T11:00:00",type:"review"},{author:"James",text:"Completado. Actividad compatible con la política.",date:"2026-01-25T16:30:00",type:"completed"}]},
-  {id:"DEC-003",userId:3,userName:"Gabriela", type:"Regalo o beneficio recibido",          formValues:{f1:"Regalo o beneficio recibido",f2:"Recibí entradas para un evento deportivo valoradas en 200€ de parte del proveedor XYZ.",f3:"Proveedor XYZ"},status:"Escalado",              createdAt:"2026-02-15T08:45:00",updatedAt:"2026-02-16T10:00:00",market:"Iberia",attachments:["foto_entradas.jpg"],comments:[{author:"Sunil",        text:"Escalo por valor superior al límite permitido.",                           date:"2026-02-16T10:00:00",type:"escalation"}]},
-  {id:"DEC-004",userId:1,userName:"Carlota",  type:"Inversión financiera en cliente",      formValues:{f1:"Inversión financiera en cliente",f2:"Poseo acciones (3%) en Cliente Global S.A., empresa con la que mantenemos relación comercial.",f3:"Cliente Global S.A."},status:"Draft",               createdAt:"2026-02-27T08:00:00",updatedAt:"2026-02-27T08:00:00",market:"Iberia",attachments:[],                   comments:[]},
-  {id:"DEC-005",userId:2,userName:"Denys",    type:"Participación en empresa competidora", formValues:{f1:"Participación en empresa competidora",f2:"Soy socio minoritario (8%) en StartupX S.L. que opera en el mismo sector.",f3:"StartupX S.L."},status:"En revisión manager",   createdAt:"2026-02-25T11:00:00",updatedAt:"2026-02-25T11:00:00",market:"Iberia",attachments:[],                   comments:[]},
-  {id:"DEC-006",userId:4,userName:"Irene",    type:"Segunda actividad laboral",            formValues:{f1:"Segunda actividad laboral",  f2:"Imparto clases de yoga los sábados en un gimnasio local.",f3:"Gimnasio local"},status:"En revisión compliance",createdAt:"2026-02-01T09:00:00",updatedAt:"2026-02-18T10:00:00",market:"Iberia",attachments:[],                   comments:[{author:"Sunil",        text:"Sin conflicto desde mi perspectiva. Paso a Compliance.",                   date:"2026-02-05T10:00:00",type:"review"}]},
-  {id:"DEC-007",userId:3,userName:"Gabriela", type:"Inversión financiera en cliente",      formValues:{f1:"Inversión financiera en cliente",f2:"Tengo un 2% de participación en una empresa que es cliente habitual.",f3:"Cliente habitual"},status:"Info solicitada",       createdAt:"2026-02-20T08:00:00",updatedAt:"2026-02-22T11:00:00",market:"Iberia",attachments:[],                   comments:[{author:"Sunil",        text:"Necesito que adjuntes el contrato de participación y datos identificativos del cliente.",date:"2026-02-22T11:00:00",type:"info_request"}]},
+  {id:"DEC-001",userId:1,userName:"Paula", type:"Conflicto de interés",        formValues:{f1:"Conflicto de interés",f2:"Mi pareja trabaja como directora comercial en uno de nuestros proveedores principales.",f3:"Proveedor ABC S.L."},status:"En revisión manager",    createdAt:"2026-02-10T09:30:00",updatedAt:"2026-02-11T14:00:00",market:"Iberia",attachments:[],comments:[{author:"Jose",text:"Revisando la situación.",date:"2026-02-11T14:00:00",type:"review"}]},
+  {id:"DEC-002",userId:1,userName:"Paula", type:"Regalo o beneficio recibido", formValues:{f1:"Regalo o beneficio recibido",f2:"Recibí entradas para un concierto valoradas en 180€ de parte de un proveedor.",f3:"Proveedor XYZ",f4:"180"},status:"Draft",                  createdAt:"2026-02-27T08:00:00",updatedAt:"2026-02-27T08:00:00",market:"Iberia",attachments:[],comments:[]},
 ];
 
 const INIT_AUDIT = [
-  {id:1,action:"Declaración enviada",  user:"Carlota", target:"DEC-001",date:"2026-02-10T09:30:00",detail:"Draft → En revisión manager → Jose",   market:"Iberia"},
-  {id:2,action:"Revisión iniciada",    user:"Jose",    target:"DEC-001",date:"2026-02-11T14:00:00",detail:"En revisión manager (comentario)",market:"Iberia"},
-  {id:3,action:"Completado",           user:"James",   target:"DEC-002",date:"2026-01-25T16:30:00",detail:"En revisión compliance → Completado",market:"Iberia"},
-  {id:4,action:"Declaración escalada", user:"Sunil",   target:"DEC-003",date:"2026-02-16T10:00:00",detail:"En revisión manager → Escalado → Jackie",  market:"Iberia"},
-  {id:5,action:"Info solicitada",      user:"Sunil",   target:"DEC-007",date:"2026-02-22T11:00:00",detail:"En revisión manager → Info solicitada",market:"Iberia"},
+  {id:1,action:"Declaración enviada", user:"Paula", target:"DEC-001",date:"2026-02-10T09:30:00",detail:"Draft → En revisión manager → Jose",market:"Iberia"},
+  {id:2,action:"Revisión iniciada",   user:"Jose",  target:"DEC-001",date:"2026-02-11T14:00:00",detail:"En revisión manager (comentario)", market:"Iberia"},
 ];
 
 // ══════════════════════════════════════════════════════════════════
